@@ -78,7 +78,7 @@
                       {{fileList[index].doclist[index1].docname}}</el-dropdown-item>
                     <el-dropdown-item divided icon="el-icon-edit-outline" command="0">预览文件</el-dropdown-item>
                     <el-dropdown-item icon="el-icon-edit-outline" command="1" :disabled="item.power<2">编辑文件</el-dropdown-item>
-                    <el-dropdown-item icon="el-icon-star-off" divided command="2">收藏</el-dropdown-item>
+                    <el-dropdown-item icon="el-icon-star-off" divided command="2">取消收藏</el-dropdown-item>
                     <el-dropdown-item icon="el-icon-share" command="3">分享</el-dropdown-item>
                     <el-dropdown-item icon="el-icon-top-right" command="4" divided>导出</el-dropdown-item>
                     <el-dropdown-item icon="el-icon-edit" command="5" :disabled="item.power<3">重命名</el-dropdown-item>
@@ -128,7 +128,7 @@
                     {{fileList[index].doclist[index1].docname}}</el-dropdown-item>
                   <el-dropdown-item divided icon="el-icon-edit-outline" command="0">预览文件</el-dropdown-item>
                   <el-dropdown-item icon="el-icon-edit-outline" command="1" :disabled="item.power<2">编辑文件</el-dropdown-item>
-                  <el-dropdown-item icon="el-icon-star-off" divided command="2">收藏</el-dropdown-item>
+                  <el-dropdown-item icon="el-icon-star-off" divided command="2">取消收藏</el-dropdown-item>
                   <el-dropdown-item icon="el-icon-share" command="3">分享</el-dropdown-item>
                   <el-dropdown-item icon="el-icon-top-right" command="4" divided>导出</el-dropdown-item>
                   <el-dropdown-item icon="el-icon-edit" command="5" :disabled="item.power<3">重命名</el-dropdown-item>
@@ -153,6 +153,42 @@
       <van-field v-model="newDocName" label="输入新文件名" />
     </van-dialog>
 
+<!--分享对话框-->
+    <van-dialog v-model="showShare" title="分享" show-cancel-button style="height:400px;width:350px;" @confirm="confirmShare" :show-confirm-button="isshowConfirm" confirm-button-text="确认分享" @cancel="cancelShare">
+        <van-search v-model="keywords" placeholder="请输入分享对象用户名" v-if="radio=='1'" @input="onSearch"/>
+        <van-search v-model="keywords" placeholder="请输入分享对象邮箱" v-if="radio=='2'" @input="onSearch"/>
+
+        <template>
+            <el-radio v-model="radio" label="1" @change="onSearch">用户名搜索</el-radio>
+            <el-radio v-model="radio" label="2" @change="onSearch">用户邮箱搜素</el-radio>
+        </template>
+
+        <van-cell v-for="(item,index) in possible" :key="item" :title="possible[index].userName" title-style="text-align:left;margin-left:20px;" :icon="possible[index].userImage" clickable @click="chooseOne(item)" v-if="radio=='1'&&havechoose==false">
+            <template #icon>
+                <van-image
+                width="25"
+                round
+                fit="cover"
+                height="25"
+                :src="possible[index].userImage"/>
+            </template>
+        </van-cell>
+        <van-cell v-for="(item,index) in possible" :key="item" :title="possible[index].userId" title-style="text-align:left;margin-left:20px;" :icon="possible[index].userImage" clickable @click="chooseOne(item)" v-if="radio=='2'&&havechoose==false">
+            <template #icon>
+                <van-image
+                width="25"
+                round
+                fit="cover"
+                height="25"
+                :src="possible[index].userImage"/>
+            </template>
+        </van-cell>
+
+        <div v-if="havechoose==true" style="margin-top:50px;">
+            <p style="margin-left:20px;color:grey;">分享意味着对方可以查看文档并将文档分享给他人查看</p>
+            <van-checkbox v-model="checked" style="margin-left:20px;margin:30px;" v-if="fileList[nowindex.index].doclist[nowindex.index1].ownerid==myemail">是否允许ta对文档进行修改</van-checkbox>
+        </div>
+    </van-dialog>
   </div>
 </template>
 
@@ -160,6 +196,7 @@
   import {Dialog, Toast} from "vant";
   import baseUrl from "../baseUrl";
   import axios from 'axios'
+
   export default {
     name: "FavouriteDoc",
     data () {
@@ -180,19 +217,22 @@
         newDocName: '',
         showRenameDialog: false,
 
-        fileList:[
-          {date:'2020/8/12',doclist:[{docname:'hello',docid:'1',doc:'你好1',owner:'youabcd'},{docname:'hello',docid:'2',doc:'你好2',owner:'youabcd'},{docname:'hello',docid:'3',doc:'你好3',owner:'youabcd'}]},
-          {date:'2020/8/11',doclist:[{docname:'hello',docid:'4',doc:'你好4',owner:'youabcd'},{docname:'hello',docid:'5',doc:'你好5',owner:'youabcd'},{docname:'hello',docid:'6',doc:'你好6',owner:'youabcd'}]},
-          {date:'2020/8/10',doclist:[{docname:'hello',docid:'7',doc:'你好7',owner:'youabcd'},{docname:'hello',docid:'8',doc:'你好8',owner:'youabcd'},{docname:'hello',docid:'12',doc:'你好12',owner:'youabcd'}]},
-          {date:'2020/8/9',doclist:[{docname:'hello',docid:'9',doc:'你好9',owner:'youabcd'},{docname:'hello',docid:'10',doc:'你好10',owner:'youabcd'},{docname:'hello',docid:'11',doc:'你好11',owner:'youabcd'}]},
-        ],
+        //分享文件部分数据
+            showShare:false,
+            radio:'1',
+            checked:false,
+            isshowConfirm:false,
+            keywords:'',//搜索用关键字
+            havechoose:false,
 
-        tableList: [{
-          id:'1',
-          date: '2016-05-03',
-          owner: '王小虎',
-          docname: '上海市普陀区金沙江路 1518 弄 '
-        }]
+            possible:[//可能搜索对象推荐
+                ],
+
+
+            fileList:[ // 最近浏览 一个月
+              ],
+
+              tableList: []
       }
     },
     methods:{
@@ -216,6 +256,63 @@
         }
       },
 
+//分享框部分
+        //搜索推荐用户
+        onSearch(){
+            this.havechoose=false;
+            //this.keywords传给后端，返回至多5个可能目标用户
+          let _this = this;
+          let data = new FormData();
+          data.append('value',this.keywords);
+          let model = 1;
+          if(this.radio == 1)
+            model = 2;
+          data.append('model',model);
+          data.append('userId',this.myemail);
+          axios.post(baseUrl+'/userSearchDocUser',data)
+            .then(function (response) {
+              _this.possible = [];
+              for(let i=0; i<response.data.length;i++){
+                _this.possible.push(response.data[i]);
+              }
+            })
+            .catch(function (err) {
+            })
+        },
+
+        //点击推荐用户
+        chooseOne(item){
+            this.keywords=item.userId;
+            this.havechoose=true;
+            this.isshowConfirm=true;
+        },
+
+        confirmShare(){//提交分享 参数：分享对象邮箱 keywords 是否给编辑权限 check(false 不给/true 给)
+            let index = this.nowindex;
+            let _this = this;
+          data.append('userId',this.myemail);
+          data.append('objId',this.keywords);
+          data.append('docId',this.fileList[this.nowindex.index].doclist[this.nowindex.index1].docid);
+          data.append('power',this.checked);
+          axios.post(baseUrl+'/userShareFile',data)
+            .then(function (response) {
+              Toast(response.data.message);
+            })
+            .catch(function (err) {
+            });
+
+
+            this.keywords='';
+            this.havechoose=false;
+            this.isshowConfirm=false;
+        },
+
+        cancelShare(){
+            this.keywords='';
+            this.havechoose=false;
+            this.isshowConfirm=false;
+        },
+
       // 图标下拉框部分
 
       clickFile(index,index1){
@@ -230,7 +327,7 @@
         else if(command==1)
           this.openFile(index);
         else if(command==2)
-          this.setFavourite(index);
+          this.cancelFavourite(index);
         else if(command==3)
           this.shareFile(index);
         else if(command==4)
@@ -245,20 +342,34 @@
       // 预览文件
       showFile(index){
         // TODO 预览文件
+        localStorage.setItem('readnow',true);
+        this.$router.push({
+          path:'/test',
+          query:{
+            editing:this.fileList[index.index].doclist[index.index1].docid,
+          },
+        });
       },
       // 打开文件
       openFile(index){
-        // TODO 打开一个文件，文件id为 this.fileList[index].docid
+        // TODO 打开一个文件
+        localStorage.setItem('readnow',false);
+        this.$router.push({
+          path:'/test',
+          query:{editing:this.fileList[index.index].doclist[index.index1].docid,
+          },
+        });
       },
-      // 收藏文件
-      setFavourite(index) {
+      // 取消收藏文件
+      cancelFavourite(index) {
         let _this = this;
         let data = new FormData();
         data.append('userId',this.myemail);
         data.append('docId',this.fileList[index.index].doclist[index.index1].docid);
-        axios.post(baseUrl+'/userSetFavourite',data)
+        axios.post(baseUrl+'/userCancelFavourite',data)
           .then(function (response) {
             Toast(response.data.message);
+            _this.loadData();
           })
           .catch(function (err) {
           })
@@ -266,6 +377,7 @@
       // 分享文件
       shareFile(index){
         // TODO 分享文件，设置权限
+        this.showShare=true;
       },
       // 导出文件
       exportFile(index){
@@ -275,6 +387,7 @@
       renameFile(index){
         this.showRenameDialog = true;
         this.newDocName = this.fileList[index.index].doclist[index.index1].docname;
+        this.newDocName = this.newDocName.substring(0,this.newDocName.length-4);
       },
       confirmRenameFile(){
         // TODO 文件重命名
@@ -283,12 +396,12 @@
         let data = new FormData();
         data.append('userId',this.myemail);
         data.append('docId',this.fileList[index.index].doclist[index.index1].docid);
-        data.append('newName',this.newDocName);
+        data.append('newName',this.newDocName+".doc");
         axios.post(baseUrl+'/userRenameFile',data)
           .then(function (response) {
             Toast(response.data.message);
             if(response.data.success) {
-              _this.fileList[index.index].doclist[index.index1].docname = _this.newDocName;
+              _this.fileList[index.index].doclist[index.index1].docname = _this.newDocName+".doc";
             }
           })
           .catch(function (err) {
@@ -296,7 +409,21 @@
       },
       // 保存文件副本
       saveFileAs(index){
-        // TODO 保存文件副本
+        let name =this.fileList[index.index].doclist[index.index1].docname;
+        name = name.substring(0,name.length-4);
+        Toast(name);
+        let _this = this;
+        let data = new FormData();
+        data.append('userId',this.myemail);
+        data.append('docName',name+"-副本.doc");
+        axios.post(baseUrl+'/userCreateNewFile',data)
+          .then(function (response) {
+            Toast(response.data.message);
+            if(response.data.success)
+              _this.loadData();
+          })
+          .catch(function (err) {
+          })
       },
       // 删除文件
       deleteFile(index){
@@ -355,7 +482,8 @@
     },
     mounted() {
       this.loadData();
-    }
+    },
+
 
     }
 </script>

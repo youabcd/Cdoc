@@ -166,9 +166,6 @@
             message: msg,
           })
             .then(() => {
-
-              // TODO 用户恢复文件
-
               let _this = this;
               let data = new FormData();
               data.append('userId',this.myemail);
@@ -186,7 +183,7 @@
             .catch(() => {
             });
         },
-        // 删除文件
+        // 彻底删除文件
         deleteFile(index){
           let msg = '确定删除文件？回收站中删除的文件将不可恢复。';
           Dialog.confirm({
@@ -194,13 +191,11 @@
             message: msg,
           })
             .then(() => {
-              // TODO 用户删除文件
-
               let _this = this;
               let data = new FormData();
               data.append('userId',this.myemail);
               data.append('docId',this.fileList[index.index].doclist[index.index1].docid);
-              axios.post(baseUrl+'/userCompleteDeleteFile',data)
+              axios.post(baseUrl+'/userDeleteFileThorough',data)
                 .then(function (response) {
                   Toast(response.data.message);
                   if(response.data.success){

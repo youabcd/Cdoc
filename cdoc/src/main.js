@@ -19,8 +19,19 @@ import { Tab, Tabs } from 'vant'
 import { Dialog } from 'vant'
 import { Cell, CellGroup } from 'vant'
 import { Popup } from 'vant'
-import { Grid, GridItem } from "vant";
+import { Grid, GridItem } from 'vant'
+import { Pagination } from 'vant'
+import { List } from 'vant'
+import { Search } from 'vant'
+import { Checkbox, CheckboxGroup } from 'vant'
 
+Vue.use(Checkbox)
+Vue.use(CheckboxGroup)
+Vue.use(Search)
+Vue.use(List)
+Vue.use(Pagination)
+Vue.use(Grid)
+Vue.use(GridItem)
 Vue.use(Popup)
 Vue.use(Cell)
 Vue.use(CellGroup)
@@ -41,8 +52,6 @@ Vue.use(Form)
 Vue.use(ElementUI)
 Vue.use(Col)
 Vue.use(Row)
-Vue.use(Grid)
-Vue.use(GridItem)
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */

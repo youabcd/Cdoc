@@ -5,6 +5,8 @@ import Register from '@/components/Register'
 import FindPassword from '@/components/FindPassword'
 import Home from '@/components/Home'
 import Myinfo from '@/components/Myinfo'
+import test from '@/components/test'
+import editor from '@/components/editor'
 
 Vue.use(Router)
 
@@ -34,6 +36,16 @@ export default new Router({
       path: '/Myinfo',
       name: 'Myinfo',
       component: Myinfo
+    },
+    {
+      path: '/test',
+      name: 'test',
+      component: test
+    },
+    {
+      path: '/editor',
+      name: 'editor',
+      component: editor
     },
   ]
 })
