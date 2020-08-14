@@ -3,6 +3,10 @@
     <div class="background">
             <img :src="imgSrc" width="100%" height="100%" alt="" />
         </div>
+
+<!--悬浮框-->
+
+
         <!--上标-->
     <van-sticky>
             <div class="up" style="box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)" >
@@ -14,17 +18,46 @@
                   <van-col span="3">
                       <span style="color:darkgrey;font-size:12px;margin-top:15px">文档将自动保存</span>
                   </van-col>
-                  <van-col span="3">
+                  <van-col span="1">
                   </van-col>
-                  <van-col span="4">
-                       <el-input placeholder="文件名"
-                       size="small"
-                       v-model="docname">
-                       </el-input>
+
+<!--正在编辑文档的人-->
+                  <van-col span="11">
+                      <div>
+                        <el-popover
+                        placement="bottom"
+                        title="还有这些人正在编辑"
+                        width="200"
+                        trigger="hover"
+                        content="">
+                          <van-image
+                          round
+                          fit="cover"
+                          width="30px"
+                          height="30px"
+                          :src="userhead"
+                          slot="reference"/>
+
+                          <van-cell v-for="(item,index) in editingPeople1" :key="item" :title="editingPeople1[index].userId" title-style="text-align:left;margin-left:20px;" :icon="editingPeople1[index].userImage" clickable v-if="editingPeople1[index].userId!=onemail">
+                          <template #icon>
+                            <van-image
+                            width="25"
+                            round
+                            fit="cover"
+                            height="25"
+                            :src="editingPeople1[index].userImage"/>
+                          </template>
+                        </van-cell>
+
+                        </el-popover>
+                          <span style="">
+                              {{onemail}}等{{editingPeople1.length}}人正在编辑该文档
+                          </span>
+
+                      </div>
                   </van-col>
-                  <van-col span="4">
-                  </van-col>
-                  <van-col span="2"></van-col>
+
+                  <van-col span="1"></van-col>
                   <van-col span=1>
                       <i class="el-icon-bell" style="font-size:30px;"></i>
                   </van-col>
@@ -64,7 +97,7 @@
     <van-row>
 <!--功能界面-->
       <van-col span="4">
-          <van-cell icon="wap-nav" @click="showpop(1)" style="width:50px;height:40px;margin-top:30px;background:;"></van-cell>
+          <van-cell icon="wap-nav" clickable @click="showpop(1)" style="width:50px;height:40px;margin-top:30px;background:;"></van-cell>
 
           <van-popup closeable rouond v-model="showtools" position="left" style=" height:100%;width:255px;margin-top:60px" @click="closepop">
                 <div style="margin-top:15px;">菜单栏</div>
@@ -86,6 +119,9 @@
                 <div style="box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);margin-top:16px;" >
                   <van-cell icon="description" clickable @click="left(5)"  title="文档信息"/>
                 </div>
+                <div style="box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);margin-top:16px;" >
+                  <van-cell icon="records" clickable @click="left(6)"  title="更新记录"/>
+                </div>
           </van-popup>
       </van-col>
 
@@ -94,6 +130,7 @@
         <div style="">
           <editor
             class="editor"
+            @update="updateInfo"
             :value="content"
             :docid="docid"
             :read="read"
@@ -108,18 +145,18 @@
         </div>
 
         <div>
-        <span style="color:red">{{docid}}</span>
-        <span style="color:blue">{{readonly}}</span></div>
+</div>
       </van-col>
 
 <!--评论区-->
       <van-col span="4">
           <div v-if="isShowComment">
-              <Comment></Comment>
+              <Comment
+                  :docId="docid"
+              ></Comment>
           </div>
       </van-col>
     </van-row>
-
   </div>
 </template>
 
@@ -135,7 +172,7 @@
         userhead:'https://img.yzcdn.cn/vant/cat.jpeg',
         imgSrc:require('../assets/loginback.jpg'),
 
-        onemali:localStorage.getItem('myemail'),
+        onemail: localStorage.getItem('myemail'),
 
         isConnect:true,//是否收藏
         showtools:false,//是否展示左边框
@@ -145,28 +182,42 @@
         MaxSize: 75765, // 文件大小
         Accept: 'image/jpeg, image/png,image/jpg', // 文件格式
         withCredentials: true,
-        content: 'Hello,world!', // 富文本编辑器双向绑定的内容
+        content: '<p></p>', // 富文本编辑器双向绑定的内容
         editorSetting: { // 配置富文本编辑器高
           height: 650
         },
 
 
         docname:'',
-        docid: '1', // TODO 接收主页传输的文档id
+        docid: '123', // TODO 接收主页传输的文档id
         read:false,
 
 
         words:'点击打开评论区',
         isShowComment:false,//右边框
+
+        //正在编辑的人
+        editingPeople1:[
+            {userImage:'https://img.yzcdn.cn/vant/cat.jpeg',userName:'youabcd1',userId:'1322496098@qq.com'},
+            {userImage:'https://img.yzcdn.cn/vant/cat.jpeg',userName:'youabcd2',userId:'13224'},
+            {userImage:'https://img.yzcdn.cn/vant/cat.jpeg',userName:'youabcd3',userId:'13224'},
+            {userImage:'https://img.yzcdn.cn/vant/cat.jpeg',userName:'youabcd4',userId:'13224'},
+        ],
+        userNum1:0,
+
       }
     },
     components: { // 引入组件
       editor,Comment
     },
     methods: {
+      updateInfo(users){
+        this.editingPeople1 = users;
+        console.log(this.editingPeople1)
+      },
       editors(content1) { // editor组件传过来的值赋给content
         console.log(content1)
-        this.content = content1
+        this.content = content1;
       },
       showComment(){
           if(this.isShowComment==false){
@@ -222,29 +273,37 @@
           });
       },
 	  initialuserhead(){
-			console.log('initial!');
-			  let _this=this;
-			  let data = new FormData();
-			  data.append('docId',this.docid);
-			  console.log(this.docid);
-			  axios.post(baseUrl+'/initialuserhead', data)
-			  .then(function(response){//从后端取值
-				if(response.data.success === true) {
-				_this.userhead=response.data.result;
-				}
-				else { // 登录失败 ，，，
-				  Toast(response.data.message);
-				}
-			  })
-	  }
+        let _this=this;
+        let data = new FormData();
+        data.append('userId',this.onemail);
+        axios.post(baseUrl+'/showUserImage', data)
+        .then(function(response){
+          _this.userhead=response.data;
+
+        })
+    },
+
+
     },
     created(){
-        this.docid=this.$route.query.editing;
+      this.docid=this.$route.query.editing;
 
-		    this.initialuserhead();
+      this.initialuserhead();
+
+      // 打开文件
+      let _this = this;
+      let data = new FormData();
+      data.append('userId',localStorage.getItem('myemail'));
+      data.append('docId',this.docid);
+      axios.post(baseUrl+'/userOpenFile',data)
+        .then(function (response) {
+        })
+
+
     },
-	mounted(){
-		
+	  mounted(){
+
+
 	}
 	}
 </script>

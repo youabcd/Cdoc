@@ -24,7 +24,19 @@ import { Pagination } from 'vant'
 import { List } from 'vant'
 import { Search } from 'vant'
 import { Checkbox, CheckboxGroup } from 'vant'
+import VueContextMenu from 'vue-contextmenu'
 
+
+
+
+
+
+
+
+
+
+
+Vue.use(VueContextMenu)
 Vue.use(Checkbox)
 Vue.use(CheckboxGroup)
 Vue.use(Search)
@@ -52,7 +64,9 @@ Vue.use(Form)
 Vue.use(ElementUI)
 Vue.use(Col)
 Vue.use(Row)
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
+
+
 
 /* eslint-disable no-new */
 new Vue({

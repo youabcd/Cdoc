@@ -50,19 +50,23 @@
         type: Boolean
       }
     },
-    watch: {
+/*    watch: {
       value: function(val) {
         if (this.status === INIT || tinymce.activeEditor.getContent() !== val) {
           tinymce.activeEditor.setContent(val)
         }
         this.status = CHANGED;
       }
-    },
+    },*/
     data() {
       return {
         myemail: localStorage.getItem("myemail"), //登着的邮箱
         status: INIT,
         id: 'editor-' + new Date().getMilliseconds(),
+
+
+        // 定时函数
+        timer: null,
       }
     },
     methods: {
@@ -76,12 +80,9 @@
         data.append('docId',this.docid);
         axios.post(baseUrl+'/docSave', data)
           .then(function(response){//从后端取值
-            if(response.data.success === true) {
-            }
-            else {
-            }
           })
       },
+
       // 加载文件数据
       loadData(){
         let _this = this;
@@ -90,18 +91,36 @@
         data.append('docId',this.docid);
         axios.post(baseUrl+'/getdocData', data)
           .then(function(response){//从后端取值
-            if(response.data.success === true) {
-              _this.value=response.data.result;
+            _this.value=response.data.result.value;
+
+            // 同步内容
+            tinymce.activeEditor.setContent(_this.value);
+
+            let list = [];
+            for(let i=0;i<response.data.result.users.length;i++){
+              list.push(response.data.result.users[i]);
             }
-            else {
-            }
+            console.log(_this.value);
+            _this.$emit('update', list);
           })
       },
+      // 轮询
+      checkData(time){
+        this.timer=setInterval(()=>{
+            this.loadData();
+        },time);
+      }
+
     },
     beforeUpdate() {
-      this.sendData();
+      if(this.value != '<p></p>')
+        this.sendData();
     },
+
     destroyed() {
+      clearInterval(this.timer);
+      this.timer = null;
+
       let _this = this;
       let data = new FormData();
       data.append('userId',this.myemail);
@@ -109,11 +128,15 @@
       axios.post(baseUrl+'/setdocLog', data)
         .then(function(response){//从后端取值
         })
-      .catch(function (err) {
-      })
+
+      axios.post(baseUrl+'/userCloseFile', data)
+        .then(function(response){//从后端取值
+        })
     },
     mounted() {
       this.loadData();
+
+      this.checkData(100);
 
       const _this = this;
       const setting =

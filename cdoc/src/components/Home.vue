@@ -86,41 +86,40 @@
     <!--左边栏-->
         <van-col span="4" style="text-align:left;">
           <el-menu
-            default-active="0"
+            :default-active="nowActive"
             class="el-menu-vertical-demo"
             @open="handleOpen"
             @close="handleClose"
             @select="onChange"
           >
-            <el-menu-item index="0">
+            <el-menu-item index="1-0">
               <i class="el-icon-s-promotion"></i>
               <span slot="title">工作台</span>
             </el-menu-item>
-            <el-menu-item index="1">
+            <el-menu-item index="1-1">
               <i class="el-icon-receiving"></i>
-              <span slot="title">收件箱</span>
+              <span slot="title">收件箱(99)</span>
             </el-menu-item>
-            <el-menu-item index="2">
+            <el-menu-item index="1-2">
               <i class="el-icon-s-platform"></i>
               <span slot="title">我的桌面</span>
             </el-menu-item>
 
 <!--团队部分-->
-            <el-submenu index="3">
+            <el-submenu index="1-3">
               <template slot="title">
                 <van-icon name="friends" size="21px"/>
-                <span slot="title">&nbsp&nbsp&nbsp团队空间</span>
+                <span>&nbsp&nbsp&nbsp团队空间</span>
               </template>
-              <div v-for="(item,index) in allTeams" :key="index" @click="openindex(item)">
-                  <el-menu-item>{{item.teamName}}</el-menu-item>
-              </div>
+                  <el-menu-item v-for="(item,index) in allTeams" :key="index" @click="openTeampage(item)" :index="index">{{item.teamName}}</el-menu-item>
             </el-submenu>
 
-            <el-menu-item index="4">
+
+            <el-menu-item index="1-4">
               <i class="el-icon-delete-solid"></i>
               <span slot="title">&nbsp回收站</span>
             </el-menu-item>
-            <el-menu-item index="5">
+            <el-menu-item index="1-5">
               <i class="el-icon-s-help"></i>
               <span slot="title">&nbsp帮助中心</span>
             </el-menu-item>
@@ -186,7 +185,7 @@
 
     <!--团队空间-->
           <div v-if="index4">
-            团队空间
+            <MyTeam :teamId="teamID"></MyTeam>
           </div>
 
     <!--回收站-->
@@ -223,10 +222,11 @@ import CreateDoc from "./HomePage/CreateDoc";
 import FavouriteDoc from "./HomePage/FavouriteDoc";
 import RecycleBin from "./HomePage/RecycleBin";
 import MyDesktop from "./HomePage/MyDesktop";
+import MyTeam from "./HomePage/MyTeam";
 
 export default {
   name: "Home",
-  components: { MyDesktop, RecycleBin, FavouriteDoc, CreateDoc, RecentlyDoc },
+  components: { MyDesktop, RecycleBin, FavouriteDoc, CreateDoc, RecentlyDoc, MyTeam },
   data() {
     return {
       searchData: "",
@@ -237,6 +237,8 @@ export default {
       icon2: "bars",
       size1: 25,
       size2: 15,
+
+      nowActive:'1-0',//侧边栏位置
 
       activeDoc: "", // 最近使用 创建 收藏
 
@@ -254,10 +256,12 @@ export default {
 //队伍信息
       allTeams:[
           {teamId:"123",teamName:"niu牛0",teamLeader:"youabcd",teamCreateDate:"2020/8/13"},
-          {teamId:"123",teamName:"niu牛1",teamLeader:"youabcd",teamCreateDate:"2020/8/13"},
-          {teamId:"123",teamName:"niu牛2",teamLeader:"youabcd",teamCreateDate:"2020/8/13"},
-          {teamId:"123",teamName:"niu牛3",teamLeader:"youabcd",teamCreateDate:"2020/8/13"},
+          {teamId:"1234",teamName:"niu牛1",teamLeader:"youabcd",teamCreateDate:"2020/8/13"},
+          {teamId:"1235",teamName:"niu牛2",teamLeader:"youabcd",teamCreateDate:"2020/8/13"},
+          {teamId:"1236",teamName:"niu牛3",teamLeader:"youabcd",teamCreateDate:"2020/8/13"},
       ],
+      teamID:'-2',
+
 
 //新建部分数据
       showNew:false,
@@ -265,25 +269,33 @@ export default {
 
     };
   },
+
+//方法
   methods: {
+
     onCommand(command) {},
     onRowclick(row, event, column) {
       Toast(row.id);
     },
 
-    openindex(item){
+
+//打开团队空间页面
+    openTeampage(item){
         Toast(item.teamName);
+        
+        //this.teamID=item.teamId;
     },
+
 
 //新建
     newDoc(){
         this.showNew=true;
     },
     confirmNewFile(){
-        //需要传入 文件名 this.DocName 创建者 this.myemail
+        //需要传入 文件名 this.DocName 创建者 this.myemail  团队id  this.teamID(-1为不在团队内，其余为团队id)
       let _this = this;
       let data = new FormData();
-      data.append('docName',this.DocName+".doc");
+      data.append('docName',this.DocName+='.doc');
       data.append('userId',this.myemail);
       axios.post(baseUrl+'/userCreateNewFile',data)
       .then(function (response) {
@@ -339,49 +351,65 @@ export default {
       this.showpop = true;
     },
     onChange(index) {
-      if (index == 0) {
+      localStorage.setItem('NowActive',index);
+      if (index == '1-0') {
         this.index1 = true;
         this.index2 = false;
         this.index3 = false;
         this.index4 = false;
         this.index5 = false;
         this.index6 = false;
-      } else if (index == 1) {
+        this.teamID='-1';
+      } else if (index == '1-1') {
         this.index1 = false;
         this.index2 = true;
         this.index3 = false;
         this.index4 = false;
         this.index5 = false;
         this.index6 = false;
-      } else if (index == 2) {
+        this.teamID='-1';
+      } else if (index == '1-2') {
         this.index1 = false;
         this.index2 = false;
         this.index3 = true;
         this.index4 = false;
         this.index5 = false;
         this.index6 = false;
-      } else if (index == 3) {
+        this.teamID='-1';
+      } else if (index == '1-3') {
         this.index1 = false;
         this.index2 = false;
         this.index3 = false;
-        this.index4 = true;
+        this.index4 = false;
         this.index5 = false;
         this.index6 = false;
-        this.show = true;
-      } else if (index == 4) {
+        //this.show = true;
+        this.teamID='-1';
+      } else if (index == '1-4') {
         this.index1 = false;
         this.index2 = false;
         this.index3 = false;
         this.index4 = false;
         this.index5 = true;
         this.index6 = false;
-      } else if (index == 5) {
+        this.teamID='-1';
+      } else if (index == '1-5') {
         this.index1 = false;
         this.index2 = false;
         this.index3 = false;
         this.index4 = false;
         this.index5 = false;
         this.index6 = true;
+        this.teamID='-1';
+      }
+      else{
+        this.index1 = false;
+        this.index2 = false;
+        this.index3 = false;
+        this.index4 = true;
+        this.index5 = false;
+        this.index6 = false;
+        this.teamID = this.allTeams[index].teamId;
       }
     }
   },
@@ -394,8 +422,10 @@ export default {
         _this.userhead = response.data;
     })
     .catch(function (err) {
-    })
+    });
 
+    this.nowActive=localStorage.getItem('NowActive');
+    this.onChange(this.nowActive);
   },
   created() {},
   computed: {

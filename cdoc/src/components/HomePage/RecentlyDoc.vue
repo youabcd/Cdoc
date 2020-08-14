@@ -358,12 +358,11 @@
         },
         // 打开文件
         openFile(index){
-          // TODO 打开一个文件
           localStorage.setItem('readnow',false);
           this.$router.push({
-              path:'/test',
-              query:{editing:this.fileList[index.index].doclist[index.index1].docid,
-              },
+            path:'/test',
+            query:{editing:this.fileList[index.index].doclist[index.index1].docid,
+            },
           });
         },
         // 收藏文件

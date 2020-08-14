@@ -96,6 +96,8 @@
 
             <el-button type="warning" @click="clear">清空输入</el-button>
             <el-button type="info" @click="submit">发表评论</el-button>
+
+            {{docId}}
             
         </div>
     </div>
@@ -103,38 +105,89 @@
 
 <script>
     import {Toast} from "vant";
-
+	import axios from 'axios';
+    import baseUrl from './baseUrl'
     export default{
         name:'Comment',
         data(){
             return{
                 currentPage: 1,
                 message:'',
-
-                onemail:'567',//localStorage.getItem("myemail"),
-                author:'567',
-
+                onemail:localStorage.getItem("myemail"),
+                author:'567', 
+				docId:'',
                 CommentList:[
-                    {userhead:'https://img.yzcdn.cn/vant/cat.jpeg',username:'1322496098@qq.com',comments:'一二三四五一二三四五一二三四五一二三四五一二三四五一二三四一二三四五一二三四',useremail:'23',commentid:''},
-                    {userhead:'https://img.yzcdn.cn/vant/cat.jpeg',username:'17815566221',comments:'一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五',useremail:'123',commentid:''},
-                    {userhead:'https://img.yzcdn.cn/vant/cat.jpeg',username:'17815566221',comments:'一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五',useremail:'321',commentid:''},
-                    {userhead:'https://img.yzcdn.cn/vant/cat.jpeg',username:'17815566221',comments:'一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一',useremail:'',commentid:''},
-                    {userhead:'https://img.yzcdn.cn/vant/cat.jpeg',username:'17815566221',comments:'一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五',useremail:'',commentid:''},
-                    {userhead:'https://img.yzcdn.cn/vant/cat.jpeg',username:'17815566221',comments:'s一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五',useremail:'',commentid:''},
-                    {userhead:'https://img.yzcdn.cn/vant/cat.jpeg',username:'17815566221',comments:'一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五一二三四五d',useremail:'',commentid:''},
+                    {userhead:'',username:'',comments:'暂无评论',useremail:'',commentid:''}
                 ],
+            }
+        },
+        props:{
+            docId:{
+                type:String,
+                editor: null,
+                required: true
             }
         },
         methods:{
             clear(){
                 this.message='';
             },
-            submit(){//提交评论,内容为message,用户邮箱onemail
+            submit(){//提交评论
+			  console.log('submit!');
+			  let _this=this;
+			  let data = new FormData();
+			  data.append('userId',this.onemail);
+			  data.append('docId',this.docId);
+			  data.append('content',this.message);
+			  axios.post(baseUrl+'/submitComment', data)
+			  .then(function(response){//从后端取值
+				if(response.data.success === true) {
+				  Toast(response.data.message);
+				  _this.loadcomment();
+				  _this.clear();
+				}
+				else { // 登录失败 ，，，
+				  Toast(response.data.message);
+				}
+			  })
+			  this.loadcomment();
             },
             deletecomment(index){//删除评论
                 Toast(index);
+				console.log('delete!');
+				let _this=this;
+				let data = new FormData();
+				data.append('commentId',this.CommentList[index].commentid);
+				axios.post(baseUrl+'/deleteComment', data)
+				.then(function(response){//从后端取值
+				if(response.data.success === true) {
+				  Toast(response.data.message);
+				  _this.loadcomment();
+				}
+				else { // 登录失败 ，，，
+				  Toast(response.data.message);
+				}
+			  })
             },
-        }
+			loadcomment(){
+			console.log('submit!');
+			 let _this=this;
+			  let data = new FormData();
+			  data.append('docId',this.docId);
+			  axios.post(baseUrl+'/initialComment', data)
+			   .then(function (response) {
+                _this.CommentList = [];
+                for(let i=0; i<response.data.length; i++){
+                  _this.CommentList.push(response.data[i]);
+                }
+            })
+            .catch(function (err) {
+            })
+			},
+        },
+		mounted(){
+			 this.loadcomment();
+			},
     }
 </script>
 
