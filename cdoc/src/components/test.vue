@@ -26,19 +26,30 @@
                       <div>
                         <el-popover
                         placement="bottom"
-                        title="还有这些人正在编辑"
+                        title=""
                         width="200"
                         trigger="hover"
                         content="">
-                          <van-image
-                          round
-                          fit="cover"
-                          width="30px"
-                          height="30px"
-                          :src="userhead"
-                          slot="reference"/>
 
-                          <van-cell v-for="(item,index) in editingPeople1" :key="item" :title="editingPeople1[index].userId" title-style="text-align:left;margin-left:20px;" :icon="editingPeople1[index].userImage" clickable v-if="editingPeople1[index].userId!=onemail">
+                          <van-image
+                            v-if="editingIndex!=-1"
+                            round
+                            fit="cover"
+                            width="30px"
+                            height="30px"
+                            :src="editingPeople1[editingIndex].userImage"
+                            slot="reference"/>
+                          <van-image
+                            v-else
+                            round
+                            fit="cover"
+                            width="30px"
+                            height="30px"
+                            :src="require('../assets/file.jpg')"
+                            slot="reference"/>
+
+
+                          <van-cell v-for="(item,index) in editingPeople1" :key="index" :title="editingPeople1[index].userId" title-style="text-align:left;margin-left:20px;" :icon="editingPeople1[index].userImage" clickable >
                           <template #icon>
                             <van-image
                             width="25"
@@ -47,12 +58,18 @@
                             height="25"
                             :src="editingPeople1[index].userImage"/>
                           </template>
+                            <p v-if="index == editingIndex" style="color: #07c160">编辑中</p>
+                            <p v-else>等待中</p>
                         </van-cell>
 
                         </el-popover>
-                          <span style="">
-                              {{onemail}}等{{editingPeople1.length}}人正在编辑该文档
+                        <span v-if="editingIndex==-1" style="">
+                                没有人正在编辑文档
                           </span>
+                        <span v-else>
+                            {{editingPeople1[editingIndex].userId}}正在编辑该文档
+                          </span>
+
 
                       </div>
                   </van-col>
@@ -62,7 +79,7 @@
                       <i class="el-icon-bell" style="font-size:30px;"></i>
                   </van-col>
                   <van-col span="2">
-                      <el-dropdown @command="onCommand">
+                      <el-dropdown @command="">
                         <span class="el-dropdown-link">
                           <van-image
                           round
@@ -142,6 +159,7 @@
             :with-credentials = "withCredentials"
             @on-upload-fail         = "onEditorReady"
             @on-upload-success= "onEditorUploadComplete"></editor>
+
         </div>
 
         <div>
@@ -203,7 +221,8 @@
             {userImage:'https://img.yzcdn.cn/vant/cat.jpeg',userName:'youabcd3',userId:'13224'},
             {userImage:'https://img.yzcdn.cn/vant/cat.jpeg',userName:'youabcd4',userId:'13224'},
         ],
-        userNum1:0,
+        editingIndex: "-1",
+
 
       }
     },
@@ -211,9 +230,9 @@
       editor,Comment
     },
     methods: {
-      updateInfo(users){
+      updateInfo(users,id){
         this.editingPeople1 = users;
-        console.log(this.editingPeople1)
+        this.editingIndex = id;
       },
       editors(content1) { // editor组件传过来的值赋给content
         console.log(content1)

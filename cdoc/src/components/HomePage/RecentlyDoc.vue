@@ -52,8 +52,8 @@
 
 
 <!--列表显示左侧-->
-<div  v-for="(item,index1) in fileList[index].doclist" :key="item">
-  <el-dropdown placement="bottom-start" @command="chooseFile" trigger="click">
+<div  v-for="(item,index1) in fileList[index].doclist" :key="item" @mouseenter="hoverIncell(index,index1)" @mouseleave="hoverOutcell(index,index1)">
+  <el-dropdown placement="bottom-start" @command="chooseFile" trigger="hover">
 
       <span class="el-dropdown-link">
 
@@ -111,8 +111,8 @@
       <van-col span="10">
 
 <!--列表显示右侧-->
-        <div  v-for="(item,index1) in fileList[index].doclist" :key="item">
-          <el-dropdown placement="bottom-start" @command="chooseFile" trigger="click">
+        <div  v-for="(item,index1) in fileList[index].doclist" :key="item"  @mouseenter="hoverIncell(index,index1)" @mouseleave="hoverOutcell(index,index1)">
+          <el-dropdown placement="bottom-start" @command="chooseFile" trigger="hover">
               <span class="el-dropdown-link">
 
               <van-cell :title="fileList[index].doclist[index1].docname" clickable  style="box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);width: 300px" v-if="index1%2==1"  @click="clickFile(index,index1)">
@@ -133,7 +133,7 @@
         </span>
 
 <!--下拉框内容-->
-            <el-dropdown-menu slot="dropdown"  style="width: 220px">
+            <el-dropdown-menu slot="dropdown" style="width: 220px">
               <van-row><van-col span="2"></van-col>
                 <van-col span="20">
                   <el-dropdown-item>
@@ -228,6 +228,7 @@
             size1:25,
             size2:15,
 
+
             // 图标部分
             nowindex: {index: -1, index1: -1},
             newDocName: '',
@@ -245,6 +246,7 @@
 
 
             fileList:[ // 最近浏览 一个月
+                {date:'8/7',doclist:[{docname:'you',docId:'fsd',owner:'dfsafd',doc:'fsdsdfsdf'},{docname:'you',docId:'fsd',owner:'dfsafd',doc:'fsdsdfsdf'}]}
              ],
 
 
@@ -258,6 +260,7 @@
           this.type = i;
           this.loadData();
         },
+
 
 
 //分享框部分
@@ -322,6 +325,11 @@
         // 图标下拉框部分
 
         clickFile(index,index1){
+          this.nowindex.index = index;
+          this.nowindex.index1 = index1;
+        },
+
+        hoverIncell(index,index1){
           this.nowindex.index = index;
           this.nowindex.index1 = index1;
         },

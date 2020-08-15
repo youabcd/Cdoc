@@ -1,6 +1,27 @@
 <template>
+  <div>
   <textarea :id='id' :value='value'></textarea>
+    <br/><br/>
+    <van-row>
+      <van-col span="4"></van-col>
+      <van-col span="4">
+        <el-button type="success" @click="loadData">刷新</el-button>
+      </van-col>
+      <van-col span="4">
+        <el-button type="primary" :disabled="editingIndex!=-1" @click="editDoc">编辑</el-button>
+      </van-col>
+      <van-col span="4">
+        <el-button type="success" :disabled="editingIndex==-1 || list[editingIndex].userId!=myemail" @click="submitChange">提交</el-button>
+      </van-col>
+      <van-col span="4">
+        <el-button type="info" :disabled="editingIndex==-1 || list[editingIndex].userId!=myemail" @click="cancelChange">取消</el-button>
+      </van-col>
+      <van-col span="4"></van-col>
+    </van-row>
+    <br/><br/>
 
+
+  </div>
 </template>
 
 <script>
@@ -58,12 +79,29 @@
         this.status = CHANGED;
       }
     },*/
+/*    watch: {
+      value: function(val) {
+        if(!this.userediting){
+          Toast('您未申请编辑状态，此时所做的修改均无法保存')
+        }
+      }
+    },*/
     data() {
       return {
         myemail: localStorage.getItem("myemail"), //登着的邮箱
         status: INIT,
         id: 'editor-' + new Date().getMilliseconds(),
 
+        editingIndex: "-1",
+        list: [
+          {userImage:'https://img.yzcdn.cn/vant/cat.jpeg',userName:'youabcd1',userId:'1322496098@qq.com'},
+          {userImage:'https://img.yzcdn.cn/vant/cat.jpeg',userName:'youabcd2',userId:'13224'},
+          {userImage:'https://img.yzcdn.cn/vant/cat.jpeg',userName:'youabcd3',userId:'13224'},
+          {userImage:'https://img.yzcdn.cn/vant/cat.jpeg',userName:'youabcd4',userId:'13224'},
+        ],
+
+        cantEdit: true,
+        userediting: false,
 
         // 定时函数
         timer: null,
@@ -91,52 +129,113 @@
         data.append('docId',this.docid);
         axios.post(baseUrl+'/getdocData', data)
           .then(function(response){//从后端取值
-            _this.value=response.data.result.value;
-
-            // 同步内容
-            tinymce.activeEditor.setContent(_this.value);
-
-            let list = [];
-            for(let i=0;i<response.data.result.users.length;i++){
-              list.push(response.data.result.users[i]);
+            console.log(response.data)
+            if(response.data.success) {
+              _this.value = response.data.result.value;
+              // 同步内容
+              tinymce.activeEditor.setContent(_this.value);
             }
-            console.log(_this.value);
-            _this.$emit('update', list);
           })
       },
+
+      // 加载围观的用户
+      loadEditingUsers(){
+        let _this = this;
+        let data = new FormData();
+        data.append('userId',this.myemail);
+        data.append('docId',this.docid);
+        axios.post(baseUrl+'/loadEditingUsers', data)
+          .then(function(response){//从后端取值
+            // 同步内容
+            _this.list = [];
+            for(let i=0;i<response.data.result.users.length;i++){
+              _this.list.push(response.data.result.users[i]);
+            }
+            _this.editingIndex = response.data.message; // 正在编辑的人的序号
+            _this.$emit('update', _this.list, _this.editingIndex);
+
+          })
+      },
+      // 用户退出文件，编辑结束
+      submitDoc(){
+        if(this.userediting) {
+          this.submitChange();
+        }
+        let _this = this;
+        let data = new FormData();
+        data.append('userId',this.myemail);
+        data.append('docId',this.docid);
+        axios.post(baseUrl+'/setdocLog', data)
+          .then(function(response){//从后端取值
+          })
+
+        axios.post(baseUrl+'/userCloseFile', data)
+          .then(function(response){//从后端取值
+          })
+      },
+
+      // 用户提交更改
+      submitChange(){
+        this.userediting = false;
+
+        this.sendData();
+
+        let _this = this;
+        let data = new FormData();
+        data.append('userId',this.myemail);
+        data.append('docId',this.docid);
+        axios.post(baseUrl+'/userSubmitChange', data)
+          .then(function(response){//从后端取值
+            Toast(response.data.message);
+            if(response.data.success){
+              _this.loadData();
+              _this.loadEditingUsers();
+            }
+          })
+      },
+      // 申请编辑文件
+      editDoc(){
+        this.loadData();
+        let _this = this;
+        let data = new FormData();
+        data.append('userId',this.myemail);
+        data.append('docId',this.docid);
+        axios.post(baseUrl+'/wantEditDoc',data)
+        .then(function (response) {
+          Toast(response.data.message);
+          if(response.data.success){
+            _this.userediting = true;
+          }
+        })
+      },
+      cancelChange(){
+        this.loadData();
+      },
+
       // 轮询
       checkData(time){
         this.timer=setInterval(()=>{
-            this.loadData();
+          this.loadEditingUsers();
+          console.log(this.editingIndex);
         },time);
       }
 
     },
     beforeUpdate() {
-      if(this.value != '<p></p>')
-        this.sendData();
+ //     if(this.value != '<p></p>')
+ //       this.sendData();
     },
 
     destroyed() {
       clearInterval(this.timer);
       this.timer = null;
 
-      let _this = this;
-      let data = new FormData();
-      data.append('userId',this.myemail);
-      data.append('docId',this.docid);
-      axios.post(baseUrl+'/setdocLog', data)
-        .then(function(response){//从后端取值
-        })
+      this.submitDoc();
 
-      axios.post(baseUrl+'/userCloseFile', data)
-        .then(function(response){//从后端取值
-        })
     },
     mounted() {
       this.loadData();
-
-      this.checkData(100);
+      this.checkData(1000);
 
       const _this = this;
       const setting =

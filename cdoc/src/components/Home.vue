@@ -35,8 +35,10 @@
               </el-dropdown>
             </van-col>
             <van-col span="2"></van-col>
+
+<!--消息提醒-->
             <van-col span="1">
-              <i class="el-icon-bell" style="font-size:30px;"></i>
+              <van-icon @click="messageshow" name="chat-o" size="30" :badge="messagenumber" />
             </van-col>
 
             <van-col span="2">
@@ -98,7 +100,7 @@
             </el-menu-item>
             <el-menu-item index="1-1">
               <i class="el-icon-receiving"></i>
-              <span slot="title">收件箱(99)</span>
+              <span slot="title">收件箱({{this.messagenumber}})</span>
             </el-menu-item>
             <el-menu-item index="1-2">
               <i class="el-icon-s-platform"></i>
@@ -175,7 +177,7 @@
 
     <!--收件箱-->
           <div v-if="index2">
-            收件箱
+            <message/>
           </div>
 
     <!--桌面-->
@@ -223,12 +225,17 @@ import FavouriteDoc from "./HomePage/FavouriteDoc";
 import RecycleBin from "./HomePage/RecycleBin";
 import MyDesktop from "./HomePage/MyDesktop";
 import MyTeam from "./HomePage/MyTeam";
+import message from "./HomePage/message";
 
 export default {
   name: "Home",
-  components: { MyDesktop, RecycleBin, FavouriteDoc, CreateDoc, RecentlyDoc, MyTeam },
+  components: { MyDesktop, RecycleBin, FavouriteDoc, CreateDoc, RecentlyDoc, MyTeam, message },
   data() {
     return {
+
+//message
+      messagenumber:"6",
+
       searchData: "",
       myemail: localStorage.getItem("myemail"), //登着的邮箱
       imgSrc: require("../assets/loginback.jpg"),
@@ -411,7 +418,37 @@ export default {
         this.index6 = false;
         this.teamID = this.allTeams[index].teamId;
       }
-    }
+    },
+
+//message
+    open1() {
+      const h = this.$createElement;
+      this.$notify({
+        title: "消息提示",
+        offset: 50,
+        message: h(
+          "i",
+          { style: "color: teal" },
+          "你目前没有收到任何消息"
+        ),
+      });
+    },
+    jumptomessage(index)
+    {
+      this.nowActive = "1-1";
+      this.onChange(index);
+    },
+    messageshow()
+    {
+      if(this.messagenumber=='0')
+      {
+        this.open1();
+      }
+      else
+      {
+        this.jumptomessage('1-1');
+      }
+    },
   },
   mounted() {
     let _this = this;

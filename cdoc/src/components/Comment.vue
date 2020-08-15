@@ -97,7 +97,7 @@
             <el-button type="warning" @click="clear">清空输入</el-button>
             <el-button type="info" @click="submit">发表评论</el-button>
 
-            {{docId}}
+
             
         </div>
     </div>
@@ -117,14 +117,14 @@
                 author:'567', 
 				docId:'',
                 CommentList:[
-                    {userhead:'',username:'',comments:'暂无评论',useremail:'',commentid:''}
+                    {userhead:' ',username:' ',comments:'暂无评论',useremail:' ',commentid:' '}
                 ],
             }
         },
         props:{
             docId:{
                 type:String,
-                editor: null,
+                docId: null,
                 required: true
             }
         },
@@ -176,7 +176,8 @@
 			  data.append('docId',this.docId);
 			  axios.post(baseUrl+'/initialComment', data)
 			   .then(function (response) {
-                _this.CommentList = [];
+			   if(response.data.length>0){
+                _this.CommentList = [];}
                 for(let i=0; i<response.data.length; i++){
                   _this.CommentList.push(response.data[i]);
                 }

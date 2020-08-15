@@ -45,8 +45,8 @@
 
         <van-col span="10">
 
-          <div v-for="(item,index1) in fileList[index].doclist" :key="item">
-            <el-dropdown placement="bottom-start" @command="chooseFile"  trigger="click">
+          <div v-for="(item,index1) in fileList[index].doclist" :key="item" @mouseenter="hoverIncell(index,index1)" @mouseleave="hoverOutcell(index,index1)">
+            <el-dropdown placement="bottom-start" @command="chooseFile"  trigger="hover">
               <span class="el-dropdown-link">
 
           <van-cell :title="fileList[index].doclist[index1].docname" clickable  style="margin-top:12px;box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);width: 300px" v-if="index1%2==0" @click="clickFile(index,index1)">
@@ -97,8 +97,8 @@
         </van-col>
 
         <van-col span="10">
-<div  v-for="(item,index1) in fileList[index].doclist" :key="item">
-          <el-dropdown placement="bottom-start" @command="chooseFile"  trigger="click">
+<div  v-for="(item,index1) in fileList[index].doclist" :key="item" @mouseenter="hoverIncell(index,index1)" @mouseleave="hoverOutcell(index,index1)">
+          <el-dropdown placement="bottom-start" @command="chooseFile"  trigger="hover">
               <span class="el-dropdown-link">
           <van-cell :title="fileList[index].doclist[index1].docname" clickable  style="margin-top:12px;box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);width: 300px" v-if="index1%2==1"  @click="clickFile(index,index1)">
             <template #icon>
@@ -319,6 +319,11 @@
         this.nowindex.index = index;
         this.nowindex.index1 = index1;
       },
+
+      hoverIncell(index,index1){
+          this.nowindex.index = index;
+          this.nowindex.index1 = index1;
+        },
 
       chooseFile(command){
         let index = this.nowindex;

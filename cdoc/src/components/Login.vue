@@ -97,6 +97,7 @@
             });
           */
           localStorage.setItem('myemail',this.useremail);
+          localStorage.setItem('NowActive','1-0');
           let _this=this;
           let data = new FormData();
           data.append('userId',this.useremail);
