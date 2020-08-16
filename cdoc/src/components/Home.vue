@@ -1,11 +1,11 @@
 <template>
-  <div v-if="refreshed">
+  <div v-if="refreshed" >
     <!--<div class="background">
             <img :src="imgSrc" width="100%" height="100%" alt="" />
         </div>-->
 
 <!--上标-->
-    <div style="z-index:99999;position: absolute;width:100%;margin-top:-18px">
+    <div style="z-index:99999;position: absolute;width:100%;margin-top:-18px" >
     <van-sticky>
       <div class="up" style="box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1)">
         <div style="padding:15px 0;">
@@ -38,7 +38,7 @@
 
 <!--消息提醒-->
             <van-col span="1">
-              <van-icon @click="messageshow" name="chat-o" size="30" :badge="messagenumber" />
+              <van-icon @click="messageshow" name="chat-o" size="30" :badge="messagenumber"/>
             </van-col>
 
             <van-col span="2">
@@ -100,7 +100,7 @@
             </el-menu-item>
             <el-menu-item index="1-1">
               <i class="el-icon-receiving"></i>
-              <span slot="title">收件箱({{this.messagenumber}})</span>
+              <span slot="title">收件箱<span v-if="messagenumber>=1">({{this.messagenumber}})</span></span>
             </el-menu-item>
             <el-menu-item index="1-2">
               <i class="el-icon-s-platform"></i>
@@ -140,7 +140,7 @@
           <van-button
             type=""
             block
-            style="margin-top:16px;background-color: #f4f4f4;color: black"
+            style="margin-top:16px;background-color: #f4f4f4;color: black" @click="showModel"
             >模板库</van-button
           >
           <van-button
@@ -148,6 +148,12 @@
             block
             style="margin-top:16px;background-color: #f4f4f4;color: black"
             >导入</van-button
+          >
+          <van-button
+            type=""
+            block
+            style="margin-top:16px;background-color: #f4f4f4;color: black" @click="creatTeam"
+            >创建团队</van-button
           >
           </van-col>
           <van-col span="1"></van-col>
@@ -177,7 +183,7 @@
 
     <!--收件箱-->
           <div v-if="index2">
-            <message/>
+            <message v-on:getChildinfo="getMessageNum"/>
           </div>
 
     <!--桌面-->
@@ -208,9 +214,69 @@
     </div>
 
 <!--新建文件对话框-->
-    <van-dialog v-model="showNew" title="新建文件" show-cancel-button @confirm="confirmNewFile">
+    <van-dialog v-model="showNew" title="新建文件" show-cancel-button @confirm="confirmNewFile" style="width:400px;">
         <van-field v-model="DocName" label="输入文件名" />
+        已选择模板:<span style="" v-if="modelRadio==-1">空白页</span><span style="" v-if="modelRadio!=-1">{{modelList[modelRadio].modelName}}</span>
+        <div style="margin-left:20px;">
+          <van-radio-group v-model="modelRadio">
+            <van-radio name="-1">空白页</van-radio>
+            <van-radio :name="index" v-for="(item,index) in modelList" :key="item" style="margin-top:10px;">
+                {{modelList[index].modelName}}
+            </van-radio>
+          </van-radio-group>
+        </div>
     </van-dialog>
+
+<!--创建团队对话框-->
+    <van-dialog v-model="showCreatTeam" title="创建新的团队" show-cancel-button @confirm="confirmNewTeam" style="width:400px;">
+        <van-field style="margin:20px;" placeholder="请输入新的团队名称" v-model="TeamName" label="输入团队名" />
+    </van-dialog>
+
+
+<!--模板页面-->
+    <van-popup v-model="popModel" closeable close-icon="close" style="height:450px;width:600px;">
+        <p>模板库</p>
+        <van-grid :border="false" column-num="4">
+            <van-grid-item v-for="(item,index) in modelList" :key="index" @click="watchModel(item)">
+              <div @mouseenter="hoverInGrid(index)" @mouseleave="hoverOutGrid(index)" :style="{width: '120px',background: gridColor[index]}">
+                <br/>
+
+                <el-dropdown placement="bottom-start" style="width: 200px" @command="chooseFile">
+
+                  <span class="el-dropdown-link">
+                    <i v-if="index==nowindex" class="el-icon-s-tools"></i>
+                  </span>
+                    <el-dropdown-menu slot="dropdown"  style="width: 220px">
+                      <van-row><van-col span="2"></van-col>
+                        <van-col span="20">
+                                <el-dropdown-item>
+                                  <van-image
+                                    width="20"
+                                    height="20"
+                                    :src="item.modelPic"/>&nbsp;
+                                  {{item.modelName}}</el-dropdown-item>
+                          <el-dropdown-item icon="el-icon-edit-outline" divided command="0">预览模板</el-dropdown-item>
+                          <el-dropdown-item icon="el-icon-edit-outline" command="1">以此模板新建</el-dropdown-item>
+                        </van-col>
+                        <van-col span="2"></van-col>
+                      </van-row>
+
+                    </el-dropdown-menu>
+
+                </el-dropdown>
+
+
+                <br/>
+                <van-image :src="item.modelPic"
+                         width="100px"
+                         height="100px"
+                         fit="contain">
+                </van-image>
+                <p>{{item.modelName}}</p>
+              </div>
+            </van-grid-item>
+          </van-grid>
+    </van-popup>
 
   </div>
 </template>
@@ -232,6 +298,19 @@ export default {
   components: { MyDesktop, RecycleBin, FavouriteDoc, CreateDoc, RecentlyDoc, MyTeam, message },
   data() {
     return {
+
+    //模板
+    popModel:false,
+    modelList:[
+        {modelId:'1',modelPic:'https://img.yzcdn.cn/vant/cat.jpeg',modelName:'北航1'},
+        {modelId:'2',modelPic:'https://img.yzcdn.cn/vant/cat.jpeg',modelName:'北航2'},
+        {modelId:'3',modelPic:'https://img.yzcdn.cn/vant/cat.jpeg',modelName:'北航3'},
+        {modelId:'4',modelPic:'https://img.yzcdn.cn/vant/cat.jpeg',modelName:'北航4'},
+        {modelId:'5',modelPic:'https://img.yzcdn.cn/vant/cat.jpeg',modelName:'北航5'},
+    ],
+    gridColor:[],
+    nowindex:-1,
+    lastindex:-1,
 
 //message
       messagenumber:"6",
@@ -267,12 +346,17 @@ export default {
           {teamId:"1235",teamName:"niu牛2",teamLeader:"youabcd",teamCreateDate:"2020/8/13"},
           {teamId:"1236",teamName:"niu牛3",teamLeader:"youabcd",teamCreateDate:"2020/8/13"},
       ],
-      teamID:'-2',
+      teamID:'-1',
 
 
 //新建部分数据
       showNew:false,
       DocName:'',
+      modelRadio:-1,
+
+//创建团队数据
+      showCreatTeam:false,
+
 
     };
   },
@@ -286,17 +370,60 @@ export default {
     },
 
 
+//模板
+    showModel(){
+        this.popModel=true;
+    },
+    hoverInGrid(index){
+          this.nowindex = index;
+          this.lastindex = index;
+          this.gridColor[index] = 'rgba(0,90,99,0.04)';
+        },
+    hoverOutGrid(index){
+          this.nowindex = -1;
+          this.gridColor[index] = '';
+        },
+    chooseFile(command){
+          let index = this.lastindex;
+          if(command==0)
+            this.watchModel(index);
+          else if(command==1)
+            this.newDoc(index);
+            this.modelRadio=index;
+    },
+    watchModel(index){
+        window.open('#/Model0'+index);
+    },
+
+
+//创建团队
+    creatTeam(){
+        this.showCreatTeam=true;
+    },
+    confirmNewTeam(){//TeamName myemail
+        var newTeamId='123';
+        var index=0;
+        for(var i=0;i<allTeams.length;i++){
+            if(allTeams[i].teamId==newTeamId){
+                index=i;
+            }
+        }
+        this.onChange(index);
+    },
+
+
 //打开团队空间页面
     openTeampage(item){
         Toast(item.teamName);
-        
+
         //this.teamID=item.teamId;
     },
 
 
 //新建
-    newDoc(){
+    newDoc(index){
         this.showNew=true;
+        this.popModel=false;
     },
     confirmNewFile(){
         //需要传入 文件名 this.DocName 创建者 this.myemail  团队id  this.teamID(-1为不在团队内，其余为团队id)
@@ -304,6 +431,17 @@ export default {
       let data = new FormData();
       data.append('docName',this.DocName+='.doc');
       data.append('userId',this.myemail);
+      data.append('teamId',this.teamID);
+      let temp = '0';
+
+      if(this.modelRadio=='-1'){
+        temp = '0';
+      }
+      else {
+        temp = this.modelList[this.modelRadio].modelId;
+      }
+
+      data.append('temp',temp);
       axios.post(baseUrl+'/userCreateNewFile',data)
       .then(function (response) {
           if(response.data.success){
@@ -317,6 +455,14 @@ export default {
       })
 
     },
+    setCurrent(row) {
+        this.$refs.singleTable.setCurrentRow(row);
+    },
+    handleCurrentChange(val) {
+        this.currentRow = val;
+    },
+
+
 
     changetype(type) {
       if (type == 1) {
@@ -359,6 +505,7 @@ export default {
     },
     onChange(index) {
       localStorage.setItem('NowActive',index);
+      this.nowActive=index;
       if (index == '1-0') {
         this.index1 = true;
         this.index2 = false;
@@ -433,22 +580,36 @@ export default {
         ),
       });
     },
-    jumptomessage(index)
-    {
-      this.nowActive = "1-1";
-      this.onChange(index);
-    },
     messageshow()
     {
       if(this.messagenumber=='0')
       {
+
         this.open1();
       }
       else
       {
-        this.jumptomessage('1-1');
+        this.onChange('1-1');
       }
     },
+
+    getMessageNum:function(childnum){
+        this.messagenumber=childnum;
+        //Toast(childnum);
+        if(this.messagenumber==0){this.messagenumber=false;}
+    },
+	messageinitial(){
+	console.log('submit!');
+			 let _this=this;
+			  let data = new FormData();
+			  data.append('userId',this.myemail);
+			  axios.post(baseUrl+'/initialMessage', data)
+			   .then(function (response) {
+				_this.messagenumber=response.data.result2.length;
+            })
+            .catch(function (err) {
+            })
+	},
   },
   mounted() {
     let _this = this;
@@ -460,9 +621,18 @@ export default {
     })
     .catch(function (err) {
     });
+    // 加载队伍信息
+    axios.post(baseUrl+'/showUserTeams',data)
+      .then(function (response) {
+        for(let i=0;i<response.data.length;i++){
+          _this.allTeams.push(response.data[i]);
+        }
+      })
 
     this.nowActive=localStorage.getItem('NowActive');
     this.onChange(this.nowActive);
+this.messageinitial();
+
   },
   created() {},
   computed: {

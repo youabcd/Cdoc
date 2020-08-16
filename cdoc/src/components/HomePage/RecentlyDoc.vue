@@ -233,13 +233,14 @@
             nowindex: {index: -1, index1: -1},
             newDocName: '',
             showRenameDialog: false,
+
+            //分享部分数据
             showShare:false,
             radio:'1',
             checked:false,
             isshowConfirm:false,
             keywords:'',//搜索用关键字
             havechoose:false,
-
 
             possible:[//可能搜索对象推荐
                ],
@@ -320,6 +321,7 @@
             this.havechoose=false;
             this.isshowConfirm=false;
         },
+
 
 
         // 图标下拉框部分

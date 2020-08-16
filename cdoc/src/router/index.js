@@ -8,6 +8,9 @@ import Myinfo from '@/components/Myinfo'
 import test from '@/components/test'
 import editor from '@/components/editor'
 import mouseClick from '@/components/mouseClick'
+import RecentlyDoc from '@/components/HomePage/RecentlyDoc'
+import Model00 from '@/components/Model/Model00'
+import Model01 from '@/components/Model/Model01'
 
 Vue.use(Router)
 
@@ -52,6 +55,21 @@ export default new Router({
       path: '/mouseClick',
       name: 'mouseClick',
       component: mouseClick
+    },
+    {
+      path: '/RecentlyDoc',
+      name: 'RecentlyDoc',
+      component: RecentlyDoc
+    },
+    {
+      path: '/Model00',
+      name: 'Model00',
+      component: Model00
+    },
+    {
+      path: '/Model01',
+      name: 'Model01',
+      component: Model01
     },
   ]
 })

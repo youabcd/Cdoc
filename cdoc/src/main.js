@@ -25,17 +25,10 @@ import { List } from 'vant'
 import { Search } from 'vant'
 import { Checkbox, CheckboxGroup } from 'vant'
 import VueContextMenu from 'vue-contextmenu'
+import { RadioGroup, Radio } from 'vant'
 
-
-
-
-
-
-
-
-
-
-
+Vue.use(Radio)
+Vue.use(RadioGroup)
 Vue.use(VueContextMenu)
 Vue.use(Checkbox)
 Vue.use(CheckboxGroup)
@@ -64,9 +57,7 @@ Vue.use(Form)
 Vue.use(ElementUI)
 Vue.use(Col)
 Vue.use(Row)
-Vue.config.productionTip = false;
-
-
+Vue.config.productionTip = false
 
 /* eslint-disable no-new */
 new Vue({

@@ -50,7 +50,7 @@
             <van-col span="4">
               <el-breadcrumb separator="/">
                 <el-breadcrumb-item :to="{ path: '/Home' }">主页</el-breadcrumb-item>
-                <el-breadcrumb-item><a href="/">个人信息</a></el-breadcrumb-item>
+                <el-breadcrumb-item><a href="#/Myinfo">个人信息</a></el-breadcrumb-item>
               </el-breadcrumb>
             </van-col>
             <van-col span="14"></van-col>

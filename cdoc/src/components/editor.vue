@@ -1,19 +1,19 @@
 <template>
   <div>
-  <textarea :id='id' :value='value'></textarea>
+    <textarea :id='id' :value='value'></textarea>
     <br/><br/>
     <van-row>
       <van-col span="4"></van-col>
       <van-col span="4">
         <el-button type="success" @click="loadData">刷新</el-button>
       </van-col>
-      <van-col span="4">
+      <van-col span="4" v-if="readnow==='false'">
         <el-button type="primary" :disabled="editingIndex!=-1" @click="editDoc">编辑</el-button>
       </van-col>
-      <van-col span="4">
+      <van-col span="4" v-if="readnow==='false'">
         <el-button type="success" :disabled="editingIndex==-1 || list[editingIndex].userId!=myemail" @click="submitChange">提交</el-button>
       </van-col>
-      <van-col span="4">
+      <van-col span="4" v-if="readnow==='false'">
         <el-button type="info" :disabled="editingIndex==-1 || list[editingIndex].userId!=myemail" @click="cancelChange">取消</el-button>
       </van-col>
       <van-col span="4"></van-col>
@@ -71,27 +71,20 @@
         type: Boolean
       }
     },
-/*    watch: {
-      value: function(val) {
-        if (this.status === INIT || tinymce.activeEditor.getContent() !== val) {
-          tinymce.activeEditor.setContent(val)
-        }
-        this.status = CHANGED;
-      }
-    },*/
-/*    watch: {
-      value: function(val) {
-        if(!this.userediting){
-          Toast('您未申请编辑状态，此时所做的修改均无法保存')
-        }
-      }
-    },*/
+    /*    watch: {
+          value: function(val) {
+            if (this.status === INIT || tinymce.activeEditor.getContent() !== val) {
+              tinymce.activeEditor.setContent(val)
+            }
+            this.status = CHANGED;
+          }
+        },*/
+
     data() {
       return {
         myemail: localStorage.getItem("myemail"), //登着的邮箱
         status: INIT,
         id: 'editor-' + new Date().getMilliseconds(),
-
         editingIndex: "-1",
         list: [
           {userImage:'https://img.yzcdn.cn/vant/cat.jpeg',userName:'youabcd1',userId:'1322496098@qq.com'},
@@ -99,16 +92,16 @@
           {userImage:'https://img.yzcdn.cn/vant/cat.jpeg',userName:'youabcd3',userId:'13224'},
           {userImage:'https://img.yzcdn.cn/vant/cat.jpeg',userName:'youabcd4',userId:'13224'},
         ],
-
         cantEdit: true,
         userediting: false,
-
         // 定时函数
         timer: null,
+        timer1: null,
+
+        readnow: localStorage.getItem('readnow'),
       }
     },
     methods: {
-
       // 向后端传输数据
       sendData(){
         let _this=this;
@@ -116,11 +109,11 @@
         data.append('value',this.value);
         data.append('userId',this.myemail);
         data.append('docId',this.docid);
+        console.log(this.value)
         axios.post(baseUrl+'/docSave', data)
           .then(function(response){//从后端取值
           })
       },
-
       // 加载文件数据
       loadData(){
         let _this = this;
@@ -137,7 +130,6 @@
             }
           })
       },
-
       // 加载围观的用户
       loadEditingUsers(){
         let _this = this;
@@ -153,7 +145,6 @@
             }
             _this.editingIndex = response.data.message; // 正在编辑的人的序号
             _this.$emit('update', _this.list, _this.editingIndex);
-
           })
       },
       // 用户退出文件，编辑结束
@@ -168,18 +159,14 @@
         axios.post(baseUrl+'/setdocLog', data)
           .then(function(response){//从后端取值
           })
-
         axios.post(baseUrl+'/userCloseFile', data)
           .then(function(response){//从后端取值
           })
       },
-
       // 用户提交更改
       submitChange(){
         this.userediting = false;
-
         this.sendData();
-
         let _this = this;
         let data = new FormData();
         data.append('userId',this.myemail);
@@ -188,6 +175,7 @@
           .then(function(response){//从后端取值
             Toast(response.data.message);
             if(response.data.success){
+              tinymce.activeEditor.getBody().setAttribute('contenteditable',false);
               _this.loadData();
               _this.loadEditingUsers();
             }
@@ -201,58 +189,81 @@
         data.append('userId',this.myemail);
         data.append('docId',this.docid);
         axios.post(baseUrl+'/wantEditDoc',data)
-        .then(function (response) {
-          Toast(response.data.message);
-          if(response.data.success){
-            _this.userediting = true;
-          }
-        })
+          .then(function (response) {
+            Toast(response.data.message);
+            if(response.data.success){
+              _this.userediting = true;
+              tinymce.activeEditor.getBody().setAttribute('contenteditable',true);
+            }
+          })
       },
       cancelChange(){
         this.loadData();
+        this.submitChange();
       },
-
+      checkLoadData(){
+        let _this = this;
+        let data = new FormData();
+        data.append('userId',this.myemail);
+        data.append('docId',this.docid);
+        axios.post(baseUrl+'/checkDocData', data)
+          .then(function(response){//从后端取值
+            if(response.data.success) {
+              _this.value = response.data.result.value;
+              // 同步内容
+              tinymce.activeEditor.setContent(_this.value);
+            }
+          })
+      },
       // 轮询
       checkData(time){
         this.timer=setInterval(()=>{
+          //this.loadEditingUsers();
+          this.checkLoadData();
+        },time);
+      },
+      // 轮询
+      checkUsers(time){
+        this.timer1=setInterval(()=>{
           this.loadEditingUsers();
-          console.log(this.editingIndex);
+          //this.checkLoadData();
         },time);
       }
-
     },
     beforeUpdate() {
- //     if(this.value != '<p></p>')
- //       this.sendData();
+      //     if(this.value != '<p></p>')
+      //       this.sendData();
     },
-
     destroyed() {
       clearInterval(this.timer);
       this.timer = null;
+      clearInterval(this.timer1);
+      this.timer1 = null;
 
       this.submitDoc();
-
     },
-    mounted() {
-      this.loadData();
-      this.checkData(1000);
 
+    mounted() {
+
+      this.loadData();
+      this.checkUsers(1000);
+      this.checkData(3000);
       const _this = this;
       const setting =
-      {
-        selector: '#' + _this.id,
-        upload_image_url: 'static/upload/', // 配置的上传图片的路由
-        language_url: '/static/lang/zh_CN.js',
-        language: 'zh_CN',
-        init_instance_callback: function(editor) {
-          // EDITOR = editor
-          console.log('Editor: ' + editor.id + ' is now initialized.')
-          editor.on('input change undo redo', () => {
-            var content = editor.getContent()
-            _this.$emit('show', content)
-          })
-        },
-        content_style: `
+        {
+          selector: '#' + _this.id,
+          upload_image_url: 'static/upload/', // 配置的上传图片的路由
+          language_url: '/static/lang/zh_CN.js',
+          language: 'zh_CN',
+          init_instance_callback: function(editor) {
+            // EDITOR = editor
+            console.log('Editor: ' + editor.id + ' is now initialized.')
+            editor.on('input change undo redo', () => {
+              var content = editor.getContent()
+              _this.$emit('show', content)
+            })
+          },
+          content_style: `
     *                         { padding:0; margin:0; }
     html, body                { height:100%; }
     img                       { max-width:100%; display:block;height:auto; }
@@ -263,36 +274,40 @@
     .mce-object-iframe        { width:100%; box-sizing:border-box; margin:0; padding:0; }
     ul,ol                     { list-style-position:inside; }
   `,
-        insert_button_items: 'image link | inserttable',
-        paste_retain_style_properties: 'all',
-        paste_word_valid_elements: '*[*]', // word需要它
-        paste_data_images: true, // 粘贴的同时能把内容里的图片自动上传，非常强力的功能
-        paste_convert_word_fake_lists: false, // 插入word文档需要该属性
-        paste_webkit_styles: 'all',
-        paste_merge_formats: true,
-        nonbreaking_force_tab: false,
-        paste_auto_cleanup_on_paste: false,
-        'plugins': [
-          'advlist link image',
-          'code',
-          'table textcolor paste textcolor colorpicker'
-        ], // 配置
-        'toolbar_items_size': 'small',
-        'block_formats': 'Paragraph=p;Heading 1=h1;Heading 2=h2;Heading 3=h3;Heading 4=h4;Heading 5=h5;Heading 6=h6;',
-        'toolbar1': 'table |insertfile undo redo | formatselect | link unlink | uploadimg image media', // 工具栏1
-        'toolbar2': ' fontsizeselect | forecolor backcolor | fontselect bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | outdent indent | removeformat', // 工具栏2
-        // 图片上传
-        images_upload_handler: function (blobInfo, success, failure) {
+          insert_button_items: 'image link | inserttable',
+          paste_retain_style_properties: 'all',
+          paste_word_valid_elements: '*[*]', // word需要它
+          paste_data_images: true, // 粘贴的同时能把内容里的图片自动上传，非常强力的功能
+          paste_convert_word_fake_lists: false, // 插入word文档需要该属性
+          paste_webkit_styles: 'all',
+          paste_merge_formats: true,
+          nonbreaking_force_tab: false,
+          paste_auto_cleanup_on_paste: false,
+          'plugins': [
+            'advlist link image',
+            'code',
+            'table textcolor paste textcolor colorpicker'
+          ], // 配置
+          'toolbar_items_size': 'small',
+          'block_formats': 'Paragraph=p;Heading 1=h1;Heading 2=h2;Heading 3=h3;Heading 4=h4;Heading 5=h5;Heading 6=h6;',
+          'toolbar1': 'table |insertfile undo redo | formatselect | link unlink | uploadimg image media', // 工具栏1
+          'toolbar2': ' fontsizeselect | forecolor backcolor | fontselect bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | outdent indent | removeformat', // 工具栏2
+          // 图片上传
+          images_upload_handler: function (blobInfo, success, failure) {
             var reader = new FileReader();
             reader.readAsDataURL(blobInfo.blob());
             reader.onload = function () {
-                success(this.result);
+              success(this.result);
             }
+          }
         }
-      }
       Object.assign(setting, _this.setting)
-
       tinymce.init(setting)
+
+
+      setTimeout(()=>{
+        tinymce.activeEditor.getBody().setAttribute('contenteditable',false);
+      },1000);
     },
     beforeDestroy: function() {
       tinymce.get(this.id).destroy()

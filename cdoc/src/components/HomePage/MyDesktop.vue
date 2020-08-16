@@ -5,6 +5,7 @@
     <br/>
     <van-row>
       <van-col span="16"></van-col>
+
       <van-col span="1">
 
       <el-tooltip class="item" effect="dark" content="文件排序方式" placement="top-start">
@@ -24,9 +25,9 @@
       </van-col>
       <van-col span="1">
           <div style="border-right: 3px solid;border-color: darkgrey;">&nbsp;
-          </div>&nbsp;
+          </div>&nbsp;&nbsp;
       </van-col>
-      <van-col span="2">
+      <van-col span="4">
           <el-tooltip class="item" effect="dark" content="平铺" placement="top">
             <van-icon :name="icon1" @click="changetype(1)" :size="size1"/>
           </el-tooltip>
@@ -35,12 +36,19 @@
             <van-icon :name="icon2" clickable @click="changetype(2)" :size="size2"/>
           </el-tooltip>
       </van-col>
+      <van-col span="2">
+      </van-col>
     </van-row>
 
-    <div v-if="showtype==1">
+    <div v-if="showtype==1" style="margin-top:25px;">
       <van-row>
         <van-col span="2"></van-col>
         <van-col span="20">
+
+          <div v-if="tableList.length==0">
+              我的桌面空空如也~~~&nbsp;&nbsp;<el-link type="primary" @click="newDoc">点击新建</el-link>
+          </div>
+          
           <van-grid :border="false" column-num="4">
             <van-grid-item v-for="(item,index) in tableList" :key="index">
               <div @mouseenter="hoverInGrid(index)" @mouseleave="hoverOutGrid(index)" :style="{width: '120px',background: gridColor[index]}">
@@ -95,7 +103,7 @@
 
 
 
-    <div v-if="showtype==2" style="margin-top:50px;">
+    <div v-if="showtype==2" style="margin-top:35px;">
       <van-row>
         <van-col span="2">
         </van-col>
@@ -108,6 +116,10 @@
             max-height="500"
             @cell-mouse-enter="hoverInTable"
             @cell-mouse-leave="hoverOutTable">
+
+            <template slot="empty">
+                  我的桌面空空如也~~~&nbsp;&nbsp;<el-link type="primary" @click="newDoc">点击新建</el-link>
+            </template>
 
             <el-table-column
               prop="docname"
@@ -217,6 +229,11 @@
             <van-checkbox v-model="checked" style="margin-left:20px;margin:30px;" v-if="tableList[lastindex].ownerid==myemail">是否允许ta对文档进行修改</van-checkbox>
         </div>
     </van-dialog>
+
+    <!--新建文件对话框-->
+    <van-dialog v-model="showNew" title="新建文件" show-cancel-button @confirm="confirmNewFile">
+        <van-field v-model="DocName" label="输入文件名" />
+    </van-dialog>
   </div>
 </template>
 
@@ -260,7 +277,11 @@
 
             gridColor: [],
 
-            tableList: []
+            tableList: [],
+
+            //新建部分数据
+      showNew:false,
+      DocName:'',
           }
       },
       methods:{
@@ -285,6 +306,32 @@
           }
           this.loadData();
         },
+
+
+//新建文件
+        newDoc(){
+        this.showNew=true;
+    },
+    confirmNewFile(){
+        //需要传入 文件名 this.DocName 创建者 this.myemail  团队id  this.teamID(-1为不在团队内，其余为团队id)
+      let _this = this;
+      let data = new FormData();
+      data.append('docName',this.DocName+='.doc');
+      data.append('userId',this.myemail);
+      data.append('teamId',this.teamID);
+      axios.post(baseUrl+'/userCreateNewFile',data)
+      .then(function (response) {
+          if(response.data.success){
+            _this.$router.push({
+              path:'/test',
+              query:{editing:response.data.result},
+            });
+          }
+      })
+      .catch(function (err) {
+      })
+
+    },
 
 //分享框部分
         //搜索推荐用户
