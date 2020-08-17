@@ -7,7 +7,6 @@ import Home from '@/components/Home'
 import Myinfo from '@/components/Myinfo'
 import test from '@/components/test'
 import editor from '@/components/editor'
-import mouseClick from '@/components/mouseClick'
 import RecentlyDoc from '@/components/HomePage/RecentlyDoc'
 import Model00 from '@/components/Model/Model00'
 import Model01 from '@/components/Model/Model01'
@@ -50,11 +49,6 @@ export default new Router({
       path: '/editor',
       name: 'editor',
       component: editor
-    },
-    {
-      path: '/mouseClick',
-      name: 'mouseClick',
-      component: mouseClick
     },
     {
       path: '/RecentlyDoc',

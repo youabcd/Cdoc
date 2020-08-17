@@ -182,7 +182,7 @@
                       </div>
 
     <!--收件箱-->
-          <div v-if="index2">
+          <div v-if="index2" style="margin-left:20px;">
             <message v-on:getChildinfo="getMessageNum"/>
           </div>
 
@@ -313,7 +313,7 @@ export default {
     lastindex:-1,
 
 //message
-      messagenumber:"6",
+      messagenumber:false,
 
       searchData: "",
       myemail: localStorage.getItem("myemail"), //登着的邮箱
@@ -400,15 +400,37 @@ export default {
     creatTeam(){
         this.showCreatTeam=true;
     },
-    confirmNewTeam(){//TeamName myemail
-        var newTeamId='123';
-        var index=0;
-        for(var i=0;i<allTeams.length;i++){
-            if(allTeams[i].teamId==newTeamId){
-                index=i;
+     confirmNewTeam(){//TeamName myemail
+		console.log('submit!');
+		var index="0";
+          let _this=this;
+          let data = new FormData();
+          data.append('teamName',this.TeamName);
+		  data.append('userId',this.myemail);
+          axios.post(baseUrl+'/createTeam', data)
+          .then(function(response){//从后端取值
+            if(response.data.success === true) {
+			
+				_this.teaminitial();
+				
+				setTimeout(()=>{
+				var newTeamId=response.data.result;
+				for(var i=0;i<_this.allTeams.length;i++){
+            if(_this.allTeams[i].teamId==newTeamId){
+               index=i;
             }
-        }
-        this.onChange(index);
+			}
+			_this.onChange(index);
+				
+				},100)
+            }
+            else { // 登录失败 ，，，
+              Toast(response.data.message);
+            }
+          }
+		  )
+		console.log('confirmNewTeam!');
+        
     },
 
 
@@ -445,6 +467,7 @@ export default {
       axios.post(baseUrl+'/userCreateNewFile',data)
       .then(function (response) {
           if(response.data.success){
+              localStorage.setItem('readnow',false);
             _this.$router.push({
               path:'/test',
               query:{editing:response.data.result},
@@ -505,6 +528,7 @@ export default {
     },
     onChange(index) {
       localStorage.setItem('NowActive',index);
+	  console.log(index);
       this.nowActive=index;
       if (index == '1-0') {
         this.index1 = true;
@@ -582,7 +606,7 @@ export default {
     },
     messageshow()
     {
-      if(this.messagenumber=='0')
+      if(this.messagenumber==false)
       {
 
         this.open1();
@@ -598,6 +622,8 @@ export default {
         //Toast(childnum);
         if(this.messagenumber==0){this.messagenumber=false;}
     },
+
+//加载消息数量    
 	messageinitial(){
 	console.log('submit!');
 			 let _this=this;
@@ -606,10 +632,30 @@ export default {
 			  axios.post(baseUrl+'/initialMessage', data)
 			   .then(function (response) {
 				_this.messagenumber=response.data.result2.length;
+        if(_this.messagenumber==0){_this.messagenumber=false;}
+				console.log(_this.messagenumber);
             })
             .catch(function (err) {
             })
 	},
+
+//加载团队  
+	teaminitial(){
+	
+	let _this = this;
+    let data = new FormData();
+	data.append('userId',this.myemail);
+	axios.post(baseUrl+'/showUserTeams',data)
+      .then(function (response) {
+	  console.log("进来了");
+	  _this.allTeams=[];
+        for(let i=0;i<response.data.length;i++){
+          _this.allTeams.push(response.data[i]);
+        }
+		console.log(response.data.length);
+      })
+	
+	}
   },
   mounted() {
     let _this = this;
@@ -622,17 +668,14 @@ export default {
     .catch(function (err) {
     });
     // 加载队伍信息
-    axios.post(baseUrl+'/showUserTeams',data)
-      .then(function (response) {
-        for(let i=0;i<response.data.length;i++){
-          _this.allTeams.push(response.data[i]);
-        }
-      })
+    
 
     this.nowActive=localStorage.getItem('NowActive');
+	console.log(this.NowActive);
     this.onChange(this.nowActive);
-this.messageinitial();
-
+	setTimeout(()=>{this.teaminitial();},200)
+	setTimeout(()=>{this.messageinitial();},100)
+	
   },
   created() {},
   computed: {

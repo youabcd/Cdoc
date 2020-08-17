@@ -16,7 +16,7 @@
               <el-button type="" size="mini" icon="el-icon-back" @click="goOff()">返回主页</el-button>
             </van-col>
             <van-col span="3">
-              <span style="color:darkgrey;font-size:12px;margin-top:15px">文档将自动保存</span>
+              <span style="color:darkgrey;font-size:12px;margin-top:15px">点击提交即可保存文档</span>
             </van-col>
             <van-col span="1">
             </van-col>
@@ -113,7 +113,7 @@
 
     <van-row>
       <!--功能界面-->
-      <van-col span="4">
+      <van-col span="2">
         <van-cell icon="wap-nav" clickable @click="showpop(1)" style="width:50px;height:40px;margin-top:30px;background:;"></van-cell>
 
         <van-popup closeable rouond v-model="showtools" position="left" style=" height:100%;width:255px;margin-top:60px" @click="closepop">
@@ -143,7 +143,7 @@
       </van-col>
 
       <!--编辑器-->
-      <van-col span="16">
+      <van-col span="18">
         <div style="">
           <editor
             class="editor"

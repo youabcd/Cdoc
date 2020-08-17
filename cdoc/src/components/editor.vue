@@ -1,25 +1,25 @@
 <template>
   <div>
-    <textarea :id='id' :value='value'></textarea>
-    <br/><br/>
     <van-row>
-      <van-col span="4"></van-col>
-      <van-col span="4">
-        <el-button type="success" @click="loadData">刷新</el-button>
-      </van-col>
-      <van-col span="4" v-if="readnow==='false'">
-        <el-button type="primary" :disabled="editingIndex!=-1" @click="editDoc">编辑</el-button>
-      </van-col>
-      <van-col span="4" v-if="readnow==='false'">
-        <el-button type="success" :disabled="editingIndex==-1 || list[editingIndex].userId!=myemail" @click="submitChange">提交</el-button>
-      </van-col>
-      <van-col span="4" v-if="readnow==='false'">
-        <el-button type="info" :disabled="editingIndex==-1 || list[editingIndex].userId!=myemail" @click="cancelChange">取消</el-button>
-      </van-col>
-      <van-col span="4"></van-col>
-    </van-row>
-    <br/><br/>
+    <van-col span="2">
+        <div v-if="readnow==='false'" style="margin-top:20px;">
+          <van-button block type="primary" :disabled="editingIndex!=-1" @click="editDoc">编辑</van-button>
+        </div>
+        <div v-if="readnow==='false'" style="margin-top:20px;">
+          <van-button block type="success" :disabled="editingIndex==-1 || list[editingIndex].userId!=myemail" @click="submitChange">提交</van-button>
+        </div>
+        <div v-if="readnow==='false'" style="margin-top:20px;">
+          <van-button block type="info" :disabled="editingIndex==-1 || list[editingIndex].userId!=myemail" @click="cancelChange">取消</van-button>
+        </div>
+    </van-col>
 
+    <van-col span="1"></van-col>
+
+    <van-col span="21">
+    <textarea :id='id' :value='value'></textarea>
+    </van-col>
+
+    </van-row>
 
   </div>
 </template>

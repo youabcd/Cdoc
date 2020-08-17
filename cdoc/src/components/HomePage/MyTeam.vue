@@ -21,14 +21,14 @@
             </el-col>
 
 <!--邀请协助者-->
-            <el-col span="8"><el-button type="primary" round @click="invite">邀请成员进入</el-button></el-col>
+            <el-col span="8"><el-button type="primary" round @click="invite" :disabled="userTeamPower=='none'">邀请成员进入</el-button></el-col>
 
 <!--退出/删除团队-->
             <el-col span="8">
-                <el-button type="danger" round="" @click="deleteTeam" v-if="myemail==TeamData[0].TeamLeaderID">删除团队
+                <el-button type="danger" round="" @click="deleteTeam" v-if="userTeamPower=='owner'">删除团队
                 </el-button>
 
-                <el-button type="danger" round="" @click="deleteTeam" v-if="myemail!=TeamData[0].TeamLeaderID">退出团队
+                <el-button type="danger" round="" @click="outTeam" v-if="userTeamPower!='owner'">退出团队
                 </el-button>
             </el-col>
           </el-row>
@@ -45,25 +45,25 @@
               >
 
                 <el-table-column
-                  prop="UserName"
+                  prop="userName"
                   label="成员姓名"
                   sortable
                 >
                 </el-table-column>
                 <el-table-column
-                  prop="ParticipateDate"
+                  prop="participateDate"
                   label="加入时间"
                   sortable
                 >
                 </el-table-column>
                 <el-table-column
-                  prop="UserId"
+                  prop="userId"
                   label="成员ID"
                   sortable
                 >
                 </el-table-column>
                 <el-table-column
-                  prop="PowerToTeam"
+                  prop="powerToTeam"
                   label="成员权限"
                   sortable>
                 </el-table-column>
@@ -72,13 +72,14 @@
 
                 <el-table-column label="移除成员">
 
-                  <template slot-scope="scope">
+                  <template slot-scope="scope" v-if="(userTeamPower=='admin'&&tableData[scope.$index].powerToTeam!='管理员'&&tableData[scope.$index].powerToTeam!='创建者')||(userTeamPower=='owner'&&tableData[scope.$index].powerToTeam!='创建者')">
                     <el-popconfirm
                       cancelButtonText='取消'
                       confirmButtonText='确定'
                       icon="el-icon-info"
                       iconColor="red"
                       title="是否确定移除该成员？"
+                      @onConfirm="confirmDeleteMember(tableData[scope.$index].userId)"
                     >
                       <el-button slot="reference" type="danger">移除</el-button>
                     </el-popconfirm>
@@ -102,20 +103,20 @@
 
 
                 <el-table-column
-                  prop="TextName"
+                  prop="textName"
                   label="文件名"
                   sortable
                 >
                 </el-table-column>
                 <el-table-column
-                  prop="Founder"
+                  prop="founder"
                   label="创建者"
                   sortable
                 >
                 </el-table-column>
 
                 <el-table-column
-                  prop="UpdateDate"
+                  prop="updateDate"
                   label="更新时间"
                   sortable
                 >
@@ -123,25 +124,11 @@
 
 
 
-                <el-table-column label="删除文档">
+                <el-table-column label="文档操作">
                   <template slot-scope="scope">
-                    <el-popconfirm
-                      confirmButtonText='确定'
-                      cancelButtonText='取消'
-                      icon="el-icon-info"
-                      iconColor="red"
-                      title="是否确定删除文档？"
-                    >
-                      <el-button slot="reference" type="danger">删除</el-button>
-                    </el-popconfirm>
-                  </template>
-                </el-table-column>
-
-                <el-table-column>
-                  <template slot-scope="scope">
-                    <el-dropdown placement="bottom-start" @command="chooseFile">
+                      <el-dropdown placement="bottom-start" @command="chooseFile">
                       <span class="el-dropdown-link">
-                        <i v-if="scope.$index==nowindex" class="el-icon-s-tools" ></i>
+                        <i class="el-icon-s-tools" ></i>
                       </span>
                       <el-dropdown-menu slot="dropdown"  style="width: 220px">
                         <van-row><van-col span="2"></van-col>
@@ -151,15 +138,15 @@
                                 width="20"
                                 height="20"
                                 :src="require('../../assets/file.jpg')"/>&nbsp;
-                              文档操作</el-dropdown-item>
+                              {{tableData02[scope.$index].textName}}</el-dropdown-item>
                             <el-dropdown-item icon="el-icon-edit-outline" command="0">预览文件</el-dropdown-item>
-                            <el-dropdown-item icon="el-icon-edit-outline" command="1" :disabled="tableData02[scope.$index].power<2">编辑文件</el-dropdown-item>
+                            <el-dropdown-item icon="el-icon-edit-outline" command="1" :disabled="userFilePower=='read'">编辑文件</el-dropdown-item>
                             <el-dropdown-item icon="el-icon-star-off" divided command="2">收藏</el-dropdown-item>
                             <el-dropdown-item icon="el-icon-share" command="3">分享</el-dropdown-item>
                             <el-dropdown-item icon="el-icon-top-right" command="4" divided>导出</el-dropdown-item>
-                            <el-dropdown-item icon="el-icon-edit" command="5" :disabled="tableData02[scope.$index].power<3">重命名</el-dropdown-item>
-                            <el-dropdown-item icon="el-icon-document" command="6">创建副本</el-dropdown-item>
-                            <el-dropdown-item icon="el-icon-delete" divided style="color: red" command="7">删除</el-dropdown-item>
+                            <el-dropdown-item icon="el-icon-edit" command="5" :disabled="userFilePower!='owner'&&userFilePower!='admin'&&tableData02[scope.$index].userId!=myemail">重命名</el-dropdown-item>
+                            <el-dropdown-item icon="el-icon-document" command="6" disabled>创建副本</el-dropdown-item>
+                            <el-dropdown-item icon="el-icon-delete" divided style="color: red" command="7" :disabled="userFilePower!='owner'&&userFilePower!='admin'&&tableData02[scope.$index].userId!=myemail">删除</el-dropdown-item>
                           </van-col>
                           <van-col span="2"></van-col>
                         </van-row>
@@ -168,56 +155,57 @@
                   </template>
                 </el-table-column>
 
-
               </el-table>
               </el-tab-pane>
 
 <!--权限列表-->
             <el-tab-pane label="权限设置" name="third">
               <el-table
-                :data="tableData03"
+                :data="tableData"
                 style="width: 100%"
                 :default-sort = "{prop: 'date', order: 'descending'}"
               >
 
 
                 <el-table-column
-                  prop="UserName"
+                  prop="userName"
                   label="成员姓名"
                   sortable
                 >
                 </el-table-column>
                 <el-table-column
-                  prop="UserId"
+                  prop="userId"
                   label="成员ID"
                   sortable
                 >
                 </el-table-column>
 
                 <el-table-column
-                  prop="PowerToTeam"
+                  prop="powerToTeam"
                   label="成员权限"
                   sortable>
                 </el-table-column>
 
                 <el-table-column
-                  prop="TextPower"
+                  prop="textPower"
                   label="文档权限"
                   sortable>
                 </el-table-column>
 
+
+<!--权限设置-->
                 <el-table-column label="设置文档权限">
-                  <template slot-scope="scope">
+                  <template slot-scope="scope"  v-if="(userTeamPower=='admin'&&tableData[scope.$index].powerToTeam!='管理员'&&tableData[scope.$index].powerToTeam!='创建者')||(userTeamPower=='owner'&&tableData[scope.$index].powerToTeam!='创建者')">
                     <el-popover
                       placement="right"
                       width="400"
                       trigger="click">
-                      <el-checkbox :indeterminate="isIndeterminate" v-model="checkAll" @change="handleCheckAllChange">全选</el-checkbox>
-                      <div style="margin: 15px 0;"></div>
-                      <el-checkbox-group v-model="checkedTextPowers" @change="handleCheckedTextPowersChange">
-                        <el-checkbox v-for="TextPower in textpowers" :label="TextPower" :key="TextPower">{{TextPower}}</el-checkbox>
-                      </el-checkbox-group>
-                      <el-button slot="reference">设置权限</el-button>
+                          <van-radio-group v-model="docRadio">
+                          <van-radio name="1" style="">可分享、可查看</van-radio>
+                          <van-radio name="2" style="margin-top:20px;">可编辑、可分享、可查看</van-radio>
+                        </van-radio-group>
+                        <van-button type="" style="margin-top:20px;" @click="submitDocRadio(scope.$index)">提交修改</van-button>
+                      <el-button slot="reference" @click="changeDocRadio(tableData[scope.$index].textPower)">设置权限</el-button>
 
                     </el-popover>
 
@@ -225,19 +213,17 @@
                 </el-table-column>
 
                 <el-table-column label="设置成员权限">
-                  <template slot-scope="scope">
+                  <template slot-scope="scope"  v-if="(userTeamPower=='admin'&&tableData[scope.$index].powerToTeam!='管理员'&&tableData[scope.$index].powerToTeam!='创建者')||(userTeamPower=='owner'&&tableData[scope.$index].powerToTeam!='创建者')">
                     <el-popover
                       placement="right"
                       width="400"
                       trigger="click">
-                        <el-radio-group v-model="radio">
-                          <el-radio :label="3">创建者权限</el-radio>
-                          <el-radio :label="6">管理权限</el-radio>
-                          <el-radio :label="9">邀请权限</el-radio>
-                          <el-radio :label="12">无权限</el-radio>
-                        </el-radio-group>
-
-                      <el-button slot="reference">设置权限</el-button>
+                        <van-radio-group v-model="memberRadio">
+                          <van-radio name="1">管理员</van-radio>
+                          <van-radio name="2" style="margin-top:20px;">普通成员</van-radio>
+                        </van-radio-group>
+                        <van-button type="" style="margin-top:20px;" @click="submitMemberRadio(scope.$index)">提交修改</van-button>
+                      <el-button slot="reference" @click="changeMemberRadio(tableData[scope.$index].powerToTeam)">设置权限</el-button>
                     </el-popover>
                   </template>
                 </el-table-column>
@@ -246,6 +232,7 @@
             </el-tab-pane>
 
           </el-tabs>
+
 
 
 <!--邀请对话框-->
@@ -284,6 +271,43 @@
         </div>
     </van-dialog>
 
+    <!--分享对话框-->
+    <van-dialog v-model="showShare" title="分享" show-cancel-button style="height:400px;width:350px;" @confirm="confirmShare" :show-confirm-button="isshowConfirm" confirm-button-text="确认分享" @cancel="cancelShare">
+      <van-search v-model="keywords" placeholder="请输入分享对象用户名" v-if="radio=='1'" @input="onSearch"/>
+      <van-search v-model="keywords" placeholder="请输入分享对象邮箱" v-if="radio=='2'" @input="onSearch"/>
+
+      <template>
+        <el-radio v-model="radio" label="1" @change="onSearch">用户名搜索</el-radio>
+        <el-radio v-model="radio" label="2" @change="onSearch">用户邮箱搜素</el-radio>
+      </template>
+
+      <van-cell v-for="(item,index) in possible1" :key="item" :title="possible1[index].userName" title-style="text-align:left;margin-left:20px;" :icon="possible1[index].userImage" clickable @click="chooseOne1(item)" v-if="radio=='1'&&havechoose==false">
+        <template #icon>
+          <van-image
+            width="25"
+            round
+            fit="cover"
+            height="25"
+            :src="possible1[index].userImage"/>
+        </template>
+      </van-cell>
+      <van-cell v-for="(item,index) in possible1" :key="item" :title="possible1[index].userId" title-style="text-align:left;margin-left:20px;" :icon="possible1[index].userImage" clickable @click="chooseOne1(item)" v-if="radio=='2'&&havechoose==false">
+        <template #icon>
+          <van-image
+            width="25"
+            round
+            fit="cover"
+            height="25"
+            :src="possible1[index].userImage"/>
+        </template>
+      </van-cell>
+
+      <div v-if="havechoose==true" style="margin-top:50px;">
+        <p style="margin-left:20px;color:grey;">分享意味着对方可以查看文档并将文档分享给他人查看</p>
+        <van-checkbox v-model="checked" style="margin-left:20px;margin:30px;" v-if="tableList[lastindex].ownerid==myemail">是否允许ta对文档进行修改</van-checkbox>
+      </div>
+    </van-dialog>
+
   </div>
 
 </template>
@@ -303,6 +327,18 @@ export default {
 
   components: {},
 
+  watch:{
+      teamId(val,oldVal){
+          this.loadTeamInfo();
+      },
+  },
+
+  mounted(){
+      //加载：团队信息 TeamData 成员信息 tableData 文档信息 tableData02 成员权限信息 tableData
+      this.loadTeamInfo();
+
+  },
+
   props: {
       teamId:{//团队ID
           type:String,
@@ -319,6 +355,11 @@ export default {
       lastindex: -1,
       newDocName: '',
       showRenameDialog: false,
+
+      showShare: false,
+//权限设置
+      docRadio:'',
+      memberRadio:'',
 
       contextMenuData: {
             menuName: 'demo',
@@ -350,78 +391,66 @@ export default {
       isIndeterminate: true,
 
 //团队信息
-      TeamData: [{
-        TeamId:'1234567',
-        TeamLeaderName: '张三',
-        TeamLeaderID: '1',
-        TeamCreateDate:'2020-8-10'
+      TeamData: {
+        teamId:'1234567',
+        teamLeaderName: '张三',
+        teamLeaderId: '1',
+        teamCreateDate:'2020-8-10'
 
-      }],
+      },
+
+
+//我的权限信息
+      userTeamPower: 'owner', // 我对团队的权限 none admin owner
+      userFilePower: 'admin', // 我对文件的权限 read write admin
+
 
 //成员信息
       tableData: [{
-        UserName: '张三',
-        ParticipateDate: '2020-08-10',
-        UserId: '1234567',
-        PowerToTeam: '团主'
+        userName: '张三',
+        participateDate: '2020-08-10',
+        userId: '1234567',
+        powerToTeam: '团主',
+        textPower: '可编辑、可分享、可查看'
       }, {
-        UserName: '李四',
-        ParticipateDate: '2020-08-11',
-        UserId: '7654321',
-        PowerToTeam: '管理员'
+        userName: '李四',
+        participateDate: '2020-08-11',
+        userId: '7654321',
+        powerToTeam: '管理员',
+        textPower: '可编辑、可分享、可查看'
       }, {
-        UserName: '王二',
-        ParticipateDate: '2020-08-11',
-        UserId: '1122344',
-        PowerToTeam: '成员'
+        userName: '王二',
+        participateDate: '2020-08-11',
+        userId: '1122344',
+        powerToTeam: '成员',
+        textPower: '可编辑、可分享、可查看'
       }, {
-        UserName: '刘五',
-        ParticipateDate: '2020-08-12',
-        UserId: '1111111',
-        PowerToTeam: '成员'
+        userName: '刘五',
+        participateDate: '2020-08-12',
+        userId: '1111111',
+        powerToTeam: '成员',
+        textPower: '可编辑、可分享、可查看'
       }],
 //文档信息
 
       tableData02: [{
-        TextName: '文件1',
-        Founder: '张三',
-        UpdateDate: '2020-8-12',
+        textName: '文件1',
+        founder: '张三',
+        updateDate: '2020-8-12',
       }, {
-        TextName: '文件2',
-        Founder: '张三',
-        UpdateDate: '2020-8-12',
+        textName: '文件2',
+        founder: '张三',
+        updateDate: '2020-8-12',
       }, {
-        TextName: '文件3',
-        Founder: '张三',
-        UpdateDate: '2020-8-12',
+        textName: '文件3',
+        founder: '张三',
+        updateDate: '2020-8-12',
       }, {
-        TextName: '文件4',
-        Founder: '张三',
-        UpdateDate: '2020-8-12',
+        textName: '文件4',
+        founder: '张三',
+        updateDate: '2020-8-12',
       }],
 
-//成员权限信息
-      tableData03: [{
-        UserName: '张三',
-        UserId: '1234567',
-        PowerToTeam: '团主',
-        TextPower: '可读,可分享'
-      }, {
-        UserName: '李四',
-        UserId: '7654321',
-        PowerToTeam: '管理员',
-        TextPower: '可读,可分享'
-      }, {
-        UserName: '王二',
-        UserId: '1122344',
-        PowerToTeam: '成员',
-        TextPower: '可读,可分享'
-      }, {
-        UserName: '刘五',
-        UserId: '1111111',
-        PowerToTeam: '成员',
-        TextPower: '可读,可分享'
-      }],
 
       //邀请成员
       showInvite:false,
@@ -433,12 +462,42 @@ export default {
       possible:[//可能搜索对象推荐
                ],
 
+      //分享
+      possible1:[],
+
     }
 
   },
 
 
   methods: {
+
+//上传团队信息
+    loadTeamInfo(){
+        let _this = this;
+      let data = new FormData();
+      data.append('userId',this.myemail);
+      data.append('teamId',this.teamId);
+      axios.post(baseUrl+'/showTeamInfo',data)
+      .then(function (response) {
+          _this.tableData = [];_this.tableData02 = [];
+          _this.teamData = response.data.result.teamData; // 成员信息
+          for(let i=0; i<response.data.result.teamMember.length; i++) {
+            _this.tableData.push(response.data.result.teamMember[i]); // 成员信息
+          }
+          for(let i=0; i<response.data.result.teamFile.length; i++){
+            _this.tableData02.push(response.data.result.teamFile[i]); // 文档信息
+          }
+
+          console.log(_this.tableData02);
+          _this.userTeamPower = response.data.result.userTeamPower; // 我的队伍权限
+          _this.userFilePower = response.data.result.userFilePower; // 我的文件权限
+      })
+      .catch(function (err) {
+      });
+    },
+
+
 //鼠标右键点击事件
     showMenu () {
         event.preventDefault()
@@ -455,6 +514,58 @@ export default {
     deletedata () {
       console.log('delete!')
     },
+
+
+
+//删除队伍
+    deleteTeam(){
+        //teamId myemail
+      let _this = this;
+      let data = new FormData();
+      data.append('teamId',this.teamId);
+      axios.post(baseUrl+"/delTeam",data)
+        .then(function (response) {
+          Toast(response.data.message);
+          if(response.data.success){
+            _this.loadTeamInfo();
+          }
+        })
+    },
+//退出队伍
+    outTeam(){
+        //teamId myeamil
+      let _this = this;
+      let data = new FormData();
+      data.append('teamId',this.teamId);
+      data.append('objId',this.myemail);
+      axios.post(baseUrl+"/delParticipateTeam",data)
+        .then(function (response) {
+          Toast(response.data.message);
+          if(response.data.success){
+            _this.loadTeamInfo();
+          }
+        })
+    },
+
+
+
+//移除成员
+    confirmDeleteMember(userId){//teamId
+      let _this = this;
+      let data = new FormData();
+      data.append('teamId',this.teamId);
+      data.append('objId',userId);
+      data.append('userId',this.myemail);
+      axios.post(baseUrl+"/delParticipateTeam",data)
+      .then(function (response) {
+          Toast(response.data.message);
+          if(response.data.success){
+            _this.loadTeamInfo();
+          }
+      })
+    },
+
+
 
     // 下拉框部分
     rowClassName({row,rowIndex}){
@@ -486,30 +597,63 @@ export default {
       else if(command==7)
         this.deleteFile(index);
     },
+
+
 //新建文件
     newDoc(){
       this.showNew=true;
     },
-    confirmNewFile(){
-      //需要传入 文件名 this.DocName 创建者 this.myemail  团队id  this.teamID(-1为不在团队内，其余为团队id)
-      let _this = this;
+
+
+
+
+//权限设置
+    changeDocRadio(power){
+        if(power=='可分享、可查看'){
+            this.docRadio='1';
+        }
+        else if(power=='可编辑、可分享、可查看'){
+            this.docRadio='2';
+        }
+    },
+    changeMemberRadio(power){
+        if(power=='管理员'){
+            this.memberRadio='1';
+        }
+        else if(power=='成员'){
+            this.memberRadio='2';
+        }
+    },
+    submitDocRadio(index){
+        let _this = this;
       let data = new FormData();
-      data.append('docName',this.DocName+='.doc');
-      data.append('userId',this.myemail);
-      data.append('teamId',this.teamID);
-      axios.post(baseUrl+'/userCreateNewFile',data)
+      data.append('type',this.docRadio);
+      data.append('userId',this.tableData[index].userId);
+      data.append('teamId',this.teamId);
+      axios.post(baseUrl+'/changeTextPower',data)
         .then(function (response) {
+          Toast(response.data.message);
           if(response.data.success){
-            _this.$router.push({
-              path:'/test',
-              query:{editing:response.data.result},
-            });
+            _this.loadTeamInfo();
           }
         })
-        .catch(function (err) {
-        })
-
     },
+    submitMemberRadio(index){
+        let _this = this;
+      let data = new FormData();
+      data.append('type',this.memberRadio);
+      data.append('userId',this.tableData[index].userId);
+      data.append('teamId',this.teamId);
+      axios.post(baseUrl+'/changeTeamPower',data)
+      .then(function (response) {
+          Toast(response.data.message);
+        if(response.data.success){
+          _this.loadTeamInfo();
+        }
+      })
+    },
+
+
 
 //分享框部分
     //搜索推荐用户
@@ -536,8 +680,8 @@ export default {
     },
 
     //点击推荐用户
-    chooseOne(item){
-      this.keywords=item.useremail;
+    chooseOne1(item){
+      this.keywords=item.userId;
       this.havechoose=true;
       this.isshowConfirm=true;
     },
@@ -568,6 +712,9 @@ export default {
       this.havechoose=false;
       this.isshowConfirm=false;
     },
+
+
+
     // 预览文件
     showFile(index){
       // TODO 预览文件
@@ -688,15 +835,6 @@ export default {
 
 
 
-
-
-
-
-
-
-
-
-
 //邀请成员
     invite(){
         this.showInvite=true;
@@ -738,7 +876,7 @@ export default {
             data.append('userId',this.myemail);
             data.append('objId',this.keywords);
             data.append('teamId',this.teamId);
-            axios.post(baseUrl+'/userShareFile',data)
+            axios.post(baseUrl+'/teamInvite',data)
             .then(function (response) {
                 Toast(response.data.message);
             })
@@ -800,24 +938,6 @@ export default {
 
      }
      },
-
-    open() {
-      this.$prompt('请输入邀请成员手机号码', '邀请', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-
-      }).then(({ value }) => {
-        this.$message({
-          type: 'success',
-          message: '已发出邀请'
-        });
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '退出'
-        });
-      });
-    },
 
     open2() {
       this.$confirm('此操作将永久删除该团队空间, 是否继续?', '提示', {

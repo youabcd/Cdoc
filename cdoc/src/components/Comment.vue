@@ -153,7 +153,6 @@
 			  this.loadcomment();
             },
             deletecomment(index){//删除评论
-                Toast(index);
 				console.log('delete!');
 				let _this=this;
 				let data = new FormData();
@@ -164,7 +163,7 @@
 				  Toast(response.data.message);
 				  _this.loadcomment();
 				}
-				else { // 登录失败 ，，，
+				else {
 				  Toast(response.data.message);
 				}
 			  })
@@ -185,9 +184,21 @@
             .catch(function (err) {
             })
 			},
+			loadauthor(){
+			console.log('loadauthor!');
+				let _this=this;
+			  let data = new FormData();
+			  data.append('docId',this.docId);
+			  axios.post(baseUrl+'/loadauthor', data)
+			   .then(function (response) {
+			   _this.author=response.data.result;
+			    console.log(_this.author);
+            })
+			}
         },
 		mounted(){
 			 this.loadcomment();
+			 this.loadauthor();
 			},
     }
 </script>
