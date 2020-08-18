@@ -143,12 +143,12 @@
             style="margin-top:16px;background-color: #f4f4f4;color: black" @click="showModel"
             >模板库</van-button
           >
-          <van-button
+          <!--<van-button
             type=""
             block
             style="margin-top:16px;background-color: #f4f4f4;color: black"
             >导入</van-button
-          >
+          >-->
           <van-button
             type=""
             block
@@ -177,7 +177,7 @@
                       <van-tab title="最近使用"><RecentlyDoc /></van-tab>
                       <van-tab title="我创建的"><CreateDoc /></van-tab>
                       <van-tab title="我的收藏"><FavouriteDoc /></van-tab>
-                      <van-tab title="工作动态">这里是工作动态项目</van-tab>
+                      <!--<van-tab title="工作动态">这里是工作动态项目</van-tab>-->
                       </van-tabs>
                       </div>
 
@@ -193,7 +193,7 @@
 
     <!--团队空间-->
           <div v-if="index4">
-            <MyTeam :teamId="teamID"></MyTeam>
+            <MyTeam :teamId="teamID" v-on:childMyTeam="MyTeamInfo"></MyTeam>
           </div>
 
     <!--回收站-->
@@ -237,7 +237,7 @@
     <van-popup v-model="popModel" closeable close-icon="close" style="height:450px;width:600px;">
         <p>模板库</p>
         <van-grid :border="false" column-num="4">
-            <van-grid-item v-for="(item,index) in modelList" :key="index" @click="watchModel(item)">
+            <van-grid-item v-for="(item,index) in modelList" :key="index" @click="watchModel(index)">
               <div @mouseenter="hoverInGrid(index)" @mouseleave="hoverOutGrid(index)" :style="{width: '120px',background: gridColor[index]}">
                 <br/>
 
@@ -302,11 +302,11 @@ export default {
     //模板
     popModel:false,
     modelList:[
-        {modelId:'1',modelPic:'https://img.yzcdn.cn/vant/cat.jpeg',modelName:'北航1'},
-        {modelId:'2',modelPic:'https://img.yzcdn.cn/vant/cat.jpeg',modelName:'北航2'},
-        {modelId:'3',modelPic:'https://img.yzcdn.cn/vant/cat.jpeg',modelName:'北航3'},
-        {modelId:'4',modelPic:'https://img.yzcdn.cn/vant/cat.jpeg',modelName:'北航4'},
-        {modelId:'5',modelPic:'https://img.yzcdn.cn/vant/cat.jpeg',modelName:'北航5'},
+        {modelId:'1',modelPic:require("../assets/picmodel00.jpg"),modelName:'模板1'},
+        {modelId:'2',modelPic:require("../assets/picmodel01.jpg"),modelName:'模板2'},
+        {modelId:'3',modelPic:require("../assets/picmodel02.jpg"),modelName:'模板3'},
+        {modelId:'4',modelPic:require("../assets/picmodel03.jpg"),modelName:'模板4'},
+        {modelId:'5',modelPic:require("../assets/picmodel04.jpg"),modelName:'模板5'},
     ],
     gridColor:[],
     nowindex:-1,
@@ -352,7 +352,7 @@ export default {
 //新建部分数据
       showNew:false,
       DocName:'',
-      modelRadio:-1,
+      modelRadio:'-1',
 
 //创建团队数据
       showCreatTeam:false,
@@ -367,6 +367,12 @@ export default {
     onCommand(command) {},
     onRowclick(row, event, column) {
       Toast(row.id);
+    },
+
+//MyTeam的数据
+    MyTeamInfo:function(index){
+        this.onChange('1-0');
+        this.teaminitial();
     },
 
 
@@ -620,7 +626,9 @@ export default {
     getMessageNum:function(childnum){
         this.messagenumber=childnum;
         //Toast(childnum);
-        if(this.messagenumber==0){this.messagenumber=false;}
+        if(this.messagenumber==0){
+            this.messagenumber=false;
+        }
     },
 
 //加载消息数量    

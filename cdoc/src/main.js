@@ -26,7 +26,9 @@ import { Search } from 'vant'
 import { Checkbox, CheckboxGroup } from 'vant'
 import VueContextMenu from 'vue-contextmenu'
 import { RadioGroup, Radio } from 'vant'
+import { Uploader } from 'vant'
 
+Vue.use(Uploader)
 Vue.use(Radio)
 Vue.use(RadioGroup)
 Vue.use(VueContextMenu)

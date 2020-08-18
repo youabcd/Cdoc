@@ -243,7 +243,9 @@
             havechoose:false,
 
             possible:[//可能搜索对象推荐
-               ],
+                {userImg:'',userId:'123',userName:'you'},
+                {userImg:'',userId:'123',userName:'you'},
+            ],
 
 
             fileList:[ // 最近浏览 一个月

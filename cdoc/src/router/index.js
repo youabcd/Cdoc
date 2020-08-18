@@ -10,6 +10,11 @@ import editor from '@/components/editor'
 import RecentlyDoc from '@/components/HomePage/RecentlyDoc'
 import Model00 from '@/components/Model/Model00'
 import Model01 from '@/components/Model/Model01'
+import Model02 from '@/components/Model/Model02'
+import Model03 from '@/components/Model/Model03'
+import Model04 from '@/components/Model/Model04'
+import Model05 from '@/components/Model/Model05'
+import OthersInfo from '@/components/OthersInfo'
 
 Vue.use(Router)
 
@@ -64,6 +69,31 @@ export default new Router({
       path: '/Model01',
       name: 'Model01',
       component: Model01
+    },
+    {
+      path: '/Model02',
+      name: 'Model02',
+      component: Model02
+    },
+    {
+      path: '/Model03',
+      name: 'Model03',
+      component: Model03
+    },
+    {
+      path: '/Model04',
+      name: 'Model04',
+      component: Model04
+    },
+    {
+      path: '/Model05',
+      name: 'Model05',
+      component: Model05
+    },
+    {
+      path: '/OthersInfo',
+      name: 'OthersInfo',
+      component: OthersInfo
     },
   ]
 })

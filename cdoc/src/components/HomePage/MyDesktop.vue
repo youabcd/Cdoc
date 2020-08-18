@@ -102,7 +102,7 @@
     </div>
 
 
-
+<!--列表-->
     <div v-if="showtype==2" style="margin-top:35px;">
       <van-row>
         <van-col span="2">

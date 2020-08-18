@@ -33,7 +33,7 @@
                         <el-dropdown-menu slot="dropdown">
                           <el-dropdown-item icon="el-icon-user" @click.native="toMyinfo">个人信息</el-dropdown-item>
                           <el-dropdown-item icon="el-icon-warning-outline"  @click.native="toLogin"><span style="color:red;">退出账号</span></el-dropdown-item>
-                          <el-dropdown-item icon="el-icon-circle-plus-outline">螺蛳粉</el-dropdown-item>
+                          <el-dropdown-item icon="el-icon-circle-plus-outline">帮助</el-dropdown-item>
 
                         </el-dropdown-menu>
 
@@ -63,12 +63,18 @@
         <div class="div1" style="box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2)" >
             <van-row>
               <van-col span="6" style="margin-top:120px;">
+
+                  <el-tooltip class="item" effect="dark" content="点击修改头像" placement="right">
                     <van-image
                     round
                     width="110px"
                     height="110px"
                     fit="cover"
+                    clickable
+                    @click="showChangeHead"
                     :src="userhead"/>
+                  </el-tooltip>
+
                   <br/><br/>
                     <p>个人信息</p>
               </van-col>
@@ -192,6 +198,19 @@
         </van-dialog>
 
       <br/><br/><br/><br/>
+
+<!--修改头像页面-->
+    <van-popup v-model="popChangeHead" closeable close-icon="close" style="height:350px;width:400px;">
+      <div style="margin-top:60px;">
+        <van-uploader v-model="headList" multiple :max-count="1" preview-size="150px" upload-text="点击即可上传" image-fit="cover"/>
+      </div>
+      <div style="margin-top:20px;">
+          <van-button type="" @click="submitNewHead">提交修改</van-button>
+      </div>
+
+    </van-popup>
+
+
     </div>
 </template>
 
@@ -227,9 +246,23 @@
 
                 idcode: '', // 用户输入的验证码
                 subidcode: '',
+
+                //修改头像
+                popChangeHead:false,
+                headList: [],
             }
         },
         methods:{
+
+        //修改头像
+            showChangeHead(){
+                this.popChangeHead=true;
+            },
+
+            submitNewHead(){//上传headList[0]
+            },
+
+
             onCommand(command){
             },
             toMyinfo(){
@@ -376,6 +409,5 @@
 }
 .el-divider{
   height:400px;
-
 }
 </style>

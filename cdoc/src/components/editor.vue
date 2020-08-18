@@ -156,11 +156,8 @@
         let data = new FormData();
         data.append('userId',this.myemail);
         data.append('docId',this.docid);
-        axios.post(baseUrl+'/setdocLog', data)
-          .then(function(response){//从后端取值
-          })
         axios.post(baseUrl+'/userCloseFile', data)
-          .then(function(response){//从后端取值
+          .then(function(response){
           })
       },
       // 用户提交更改

@@ -1,6 +1,6 @@
 <template>
   <el-container>
-    
+
     <el-main>
       <div>
         <h2 style="color: darkgrey">我的消息</h2>
@@ -15,6 +15,11 @@
               style="width: 90%"
               :default-sort="{ prop: 'date', order: 'descending' }"
             >
+            <template slot="empty">
+                <span style="">
+                    暂未收到新消息
+                </span>
+            </template>
               <el-table-column align="center" width="50">
                 <el-badge is-dot class="item">
                   <i class="el-icon-message-solid"></i>
@@ -87,8 +92,20 @@
                       @click="changemessage(scope.row)"
                     ></el-button>
                   </el-tooltip>
-                  <!--type=='5'-->
+
+          <!--type=='5'-->
                   <el-tooltip v-if="scope.row.type=='5'" effect="dark" content="查收" placement="top">
+                    <el-button
+                      size="small"
+                      type="warning"
+                      icon="el-icon-check"
+                      circle
+                      @click="changemessage(scope.row)"
+                    ></el-button>
+                  </el-tooltip>
+
+            <!--type=='6'-->
+                  <el-tooltip v-if="scope.row.type=='6'" effect="dark" content="查收" placement="top">
                     <el-button
                       size="small"
                       type="warning"
@@ -103,13 +120,18 @@
           </el-tab-pane>
 
 
-<！--已读消息-->
+<!--已读消息-->
           <el-tab-pane label="已读消息" name="second">
             <el-table
               :data="oldmessage"
               style="width: 100%"
               :default-sort="{ prop: 'date', order: 'descending' }"
             >
+            <template slot="empty">
+                <span style="">
+                    暂无已读消息
+                </span>
+            </template>
               <el-table-column align="center" width="50">
                 <i class="el-icon-message-solid"></i>
               </el-table-column>
@@ -122,7 +144,7 @@
                   <el-tooltip v-if="scope.row.type=='1'" effect="dark" content="查看" placement="top">
                     <el-button size="small" type="primary" icon="el-icon-right" circle @click="changemessage1(scope.row)"></el-button>
                   </el-tooltip>
-                  
+
                   <el-tooltip effect="dark" content="删除" placement="top">
                     <el-button size="small" type="danger" icon="el-icon-delete" circle @click="deletemessage(scope.row.id)"></el-button>
                   </el-tooltip>
@@ -152,11 +174,10 @@ import axios from 'axios';
         drawer: false,
 		messagenumber:"0",
 		onemail:localStorage.getItem("myemail"),
-		
+
 		timer:null,
-		
-        oldmessage: [{type: "",  id: "",   message: "",   date: "",
-            people: "", }],
+
+        oldmessage: [],
         newmessage: [
           {type: "1",  id: "1",   message: "1",   date: "1",
             people: "",  teamId: "",docId: "",power:"read"}
@@ -192,7 +213,7 @@ import axios from 'axios';
               Toast(response.data.message);
             }
           }
-		  
+
 		       );
 
           if(temp.type=="1"){
@@ -237,11 +258,11 @@ import axios from 'axios';
           .then(function(response){//从后端取值
             if(response.data.success === true) {
             }
-            else { 
+            else {
               Toast(response.data.message);
             }
           }
-      
+
            );
 		   this.changemessage(temp);
       },
@@ -258,10 +279,10 @@ import axios from 'axios';
               Toast(response.data.message);
             }
           }
-      
+
            );
 		   this.changemessage(temp);
-	  
+
 	  },
 
 	  loadmessage(){
@@ -280,6 +301,7 @@ import axios from 'axios';
                   _this.newmessage.push(response.data.result2[i]);
                 }
 				_this.messagenumber=response.data.result2.length;
+        _this.$emit('getChildinfo',_this.messagenumber);
 				console.log(_this.messagenumber);
             })
             .catch(function (err) {
@@ -299,7 +321,7 @@ import axios from 'axios';
               Toast(response.data.message);
             }
           }
-		  
+
 		  )
 	}
     },
@@ -307,10 +329,10 @@ import axios from 'axios';
 	this.loadmessage();
 	this.checkData(3000);
 	},
-	/*destroyed(){
+	destroyed(){
 	clearInterval(this.timer);
 	this.timer=null;
-	}*/
+	}
   };
 </script>
 

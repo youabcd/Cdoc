@@ -1,6 +1,34 @@
 <template>
   <div>
-    <h2 style="color: darkgrey">回收站</h2><br/>
+
+    <van-row>
+      <van-col span="4">
+      </van-col>
+
+      <van-col span="16">
+        <h2 style="color: darkgrey">回收站</h2>
+      </van-col>
+
+      <van-col span="4" style="">
+          <el-tooltip class="item" effect="light" content="点击清空回收站" placement="bottom">
+
+          <el-popconfirm
+          title="确定清空回收站吗？"
+          @onConfirm="clearRecycelBin">
+
+            <h2 slot="reference">
+              <i class="el-icon-delete" @click="clearclick"></i>
+            </h2>
+
+            </el-popconfirm>
+          </el-tooltip>
+      </van-col>
+    </van-row>
+
+    <br/>
+    <div v-if="fileList.length==0">
+        <h2 style="color: darkgrey">空</h2>
+    </div>
 
     <div v-for="(item,index) in fileList" :key="item" >
       <van-row>
@@ -11,7 +39,7 @@
             <p style="color: orange">还有&nbsp;{{remainDays(fileList[index].date)}}&nbsp;天将被永久删除</p>
           </div>
         </van-col>
-        <van-col span="1"></van-col>
+        <van-col span="2"></van-col>
       </van-row>
 
       <van-row>
@@ -142,6 +170,27 @@
           }
       },
       methods:{
+
+      //清空回收站
+        clearRecycelBin(){
+              //Toast(this.myemail);
+              let _this = this;
+              let data = new FormData();
+              data.append('userId',this.myemail);
+              axios.post(baseUrl+'/userClearRecycleBin',data)
+                .then(function (response) {
+                  Toast(response.data.message);
+                  if(response.data.success){
+                    _this.loadData();
+                  }
+                })
+                .catch(function (err) {
+                })
+
+        },
+        clearclick(){},
+
+
         remainDays(d){
           let now = new Date();
           let date = now.getTime() - new Date(d).getTime();

@@ -117,27 +117,12 @@
         <van-cell icon="wap-nav" clickable @click="showpop(1)" style="width:50px;height:40px;margin-top:30px;background:;"></van-cell>
 
         <van-popup closeable rouond v-model="showtools" position="left" style=" height:100%;width:255px;margin-top:60px" @click="closepop">
-          <div style="margin-top:15px;">菜单栏</div>
-          <div style="box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);margin-top:16px;" v-if="isConnect==false">
-            <van-cell icon="star-o" clickable @click="left(1)" title="收藏"/>
-          </div>
-          <div style="box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);margin-top:16px;" v-if="isConnect==true">
-            <van-cell icon="star" clickable @click="left(1)" title="已收藏"/>
+          <div style="margin-top:15px;">信息栏</div>
+          <div style="box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);margin-top:16px;" >
+            <van-cell icon="description" clickable @click="leftPart(1)"  title="文档信息"/>
           </div>
           <div style="box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);margin-top:16px;" >
-            <van-cell icon="share" clickable @click="left(2)" title="分享"/>
-          </div>
-          <div style="box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);margin-top:16px;" >
-            <van-cell icon="down" clickable @click="left(3)"  title="保存至本地"/>
-          </div>
-          <div style="box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);margin-top:16px;" >
-            <van-cell icon="replay" clickable @click="left(4)"  title="创建副本"/>
-          </div>
-          <div style="box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);margin-top:16px;" >
-            <van-cell icon="description" clickable @click="left(5)"  title="文档信息"/>
-          </div>
-          <div style="box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);margin-top:16px;" >
-            <van-cell icon="records" clickable @click="left(6)"  title="更新记录"/>
+            <van-cell icon="records" clickable @click="leftPart(2)"  title="更新记录"/>
           </div>
         </van-popup>
       </van-col>
@@ -175,6 +160,49 @@
         </div>
       </van-col>
     </van-row>
+
+<!--文档信息弹框-->
+      <van-popup
+      v-model="showTeamInfo"
+      closeable
+      close-icon="close"
+      style="height:500px;width:400px;">
+        <div style="margin-top:20px;">文档信息</div>
+        <div style="margin-left:30px;text-align:left;">
+
+          <div style="margin-top:20px;">
+              文件名：{{docInfo.docName}}
+          </div>
+          <div style="margin-top:20px;">
+              文件编号：{{docInfo.docId}}
+          </div>
+          <div style="margin-top:20px;">
+              文档创建者：{{docInfo.authorName}}
+          </div>
+          <div style="margin-top:20px;">
+              文档创建者邮箱：{{docInfo.authorId}}
+          </div>
+          <div style="margin-top:20px;">
+              文档参与者邮箱：
+          </div>
+          <div v-for="(item,index) in docInfo.cooperatorId" style="margin-top:20px;">
+              {{docInfo.cooperatorId[index]}}
+          </div>
+        </div>
+      </van-popup>
+
+<!--更新记录弹框-->
+      <van-popup
+      v-model="showUpdateRecord"
+      closeable
+      close-icon="close"
+      style="height:500px;width:600px;">
+        <div style="margin-top:20px;"><h3>文档更新记录(共{{numberOfRecord}}条记录)</h3></div>
+        <div style="white-space: pre-wrap;">
+          <p>{{updateRecord}}</p>
+        </div>
+      </van-popup>
+
   </div>
 </template>
 
@@ -213,6 +241,16 @@
           {userImage:'https://img.yzcdn.cn/vant/cat.jpeg',userName:'youabcd4',userId:'13224'},
         ],
         editingIndex: "-1",
+
+        //文档信息
+        docInfo:{docId:'1',docName:'1',authorName:'x',authorId:'x',cooperatorId:['a','b','c','d','e']},
+        showTeamInfo:false,
+
+        //更新记录
+        updateRecord:'123\n321',
+        showUpdateRecord:false,
+        numberOfRecord:0,
+
       }
     },
     components: { // 引入组件
@@ -237,7 +275,28 @@
           this.words='点击打开评论区';
         }
       },
-      left(index){},
+      leftPart(index){
+        let _this = this;
+        let data = new FormData();
+        data.append('docId',this.docid);
+          if(index==1){
+          //显示文档信息
+            this.showTeamInfo=true;
+            axios.post(baseUrl+'/getdocInfo',data)
+            .then(function (response) {
+              _this.docInfo = response.data.result;
+            })
+          }
+          else if(index==2){
+          //显示更新记录
+              this.showUpdateRecord=true;
+            axios.post(baseUrl+'/getdocLogInfo',data)
+              .then(function (response) {
+                _this.updateRecord = response.data.result;
+                _this.numberOfRecord = response.data.message;
+              })
+          }
+      },
       showpop(which){
         if(which==1){
           this.showtools=true;
