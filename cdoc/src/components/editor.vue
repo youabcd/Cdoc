@@ -117,7 +117,7 @@
           console.log(this.value);
           let _this = this;
           this.$router.push({
-            path:'/Download',
+            path:'/down',
             query:{value:_this.textValue,docName:_this.docInfo.docName
             },
           });

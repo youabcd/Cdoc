@@ -170,10 +170,11 @@
             <div style="z-index:999;position: relative;width:100%;margin-top:65px;">
 
                       <div v-if="index1">
-                      <van-tabs v-model="activeDoc" style="width:80%;">
-                      <van-tab title="最近使用"><RecentlyDoc /></van-tab>
-                      <van-tab title="我创建的"><CreateDoc /></van-tab>
-                      <van-tab title="我的收藏"><FavouriteDoc /></van-tab>
+                      <van-tabs v-model="activeDoc" style="width:80%;" @change="onChangegzt">
+                      <van-tab title="最近使用"><RecentlyDoc :key="timer" /></van-tab>
+                      <van-tab title="我创建的">
+                      <CreateDoc :key="timer" /></van-tab>
+                      <van-tab title="我的收藏"><FavouriteDoc :key="timer" /></van-tab>
                       <!--<van-tab title="工作动态">这里是工作动态项目</van-tab>-->
                       </van-tabs>
                       </div>
@@ -355,11 +356,18 @@ export default {
       showCreatTeam:false,
 
 
+      timer:'',
+
+
     };
   },
 
 //方法
   methods: {
+
+    onChangegzt(){
+        this.timer = new Date().getTime()
+    },
 
     onCommand(command) {},
     onRowclick(row, event, column) {

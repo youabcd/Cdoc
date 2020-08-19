@@ -230,6 +230,8 @@
 
             possible:[//可能搜索对象推荐
                ],
+
+
             fileList:[ // 最近浏览 一个月
               ],
           }
@@ -471,7 +473,8 @@
       },
       mounted() {
         this.loadData();
-      }
+      },
+      created(){},
     }
 </script>
 

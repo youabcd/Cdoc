@@ -161,7 +161,12 @@
             newDocName: '',
             showRenameDialog: false,
 
-            fileList:[ ],
+            fileList:[ // 最近浏览 一个月
+              {date:'2020/8/12',doclist:[{docname:'hello',docid:'1',doc:'你好1',owner:'youabcd'},{docname:'hello',docid:'2',doc:'你好2',owner:'youabcd'},{docname:'hello',docid:'3',doc:'你好3',owner:'youabcd'}]},
+              {date:'2020/8/11',doclist:[{docname:'hello',docid:'4',doc:'你好4',owner:'youabcd'},{docname:'hello',docid:'5',doc:'你好5',owner:'youabcd'},{docname:'hello',docid:'6',doc:'你好6',owner:'youabcd'}]},
+              {date:'2020/8/10',doclist:[{docname:'hello',docid:'7',doc:'你好7',owner:'youabcd'},{docname:'hello',docid:'8',doc:'你好8',owner:'youabcd'},{docname:'hello',docid:'12',doc:'你好12',owner:'youabcd'}]},
+              {date:'2020/8/9',doclist:[{docname:'hello',docid:'9',doc:'你好9',owner:'youabcd'},{docname:'hello',docid:'10',doc:'你好10',owner:'youabcd'},{docname:'hello',docid:'11',doc:'你好11',owner:'youabcd'}]},
+            ],
           }
       },
       methods:{

@@ -243,11 +243,13 @@
             havechoose:false,
 
             possible:[//可能搜索对象推荐
-
+                {userImg:'',userId:'123',userName:'you'},
+                {userImg:'',userId:'123',userName:'you'},
             ],
 
 
             fileList:[ // 最近浏览 一个月
+                {date:'8/7',doclist:[{docname:'you',docId:'fsd',owner:'dfsafd',doc:'fsdsdfsdf'},{docname:'you',docId:'fsd',owner:'dfsafd',doc:'fsdsdfsdf'}]}
              ],
 
 
@@ -496,7 +498,8 @@
       },
       mounted() {
           this.loadData();
-      }
+      },
+      created(){},
 
     }
 </script>

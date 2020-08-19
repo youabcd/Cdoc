@@ -487,7 +487,7 @@
     mounted() {
       this.loadData();
     },
-
+    created(){},
 
     }
 </script>
