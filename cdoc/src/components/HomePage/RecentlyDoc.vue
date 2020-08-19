@@ -91,7 +91,7 @@
           <el-dropdown-item icon="el-icon-edit-outline" command="1" :disabled="item.power<2">编辑文件</el-dropdown-item>
           <el-dropdown-item icon="el-icon-star-off" divided command="2">收藏</el-dropdown-item>
           <el-dropdown-item icon="el-icon-share" command="3">分享</el-dropdown-item>
-          <el-dropdown-item icon="el-icon-top-right" command="4" divided>导出</el-dropdown-item>
+          <!--<el-dropdown-item icon="el-icon-top-right" command="4" divided>导出</el-dropdown-item>-->
           <el-dropdown-item icon="el-icon-edit" command="5" :disabled="item.power<3">重命名</el-dropdown-item>
           <el-dropdown-item icon="el-icon-document" command="6">创建副本</el-dropdown-item>
           <el-dropdown-item icon="el-icon-delete" divided style="color: red" command="7">删除</el-dropdown-item>
@@ -147,7 +147,7 @@
                   <el-dropdown-item icon="el-icon-edit-outline" command="1" :disabled="fileList[index].doclist[index1].power<2">编辑文件</el-dropdown-item>
                   <el-dropdown-item icon="el-icon-star-off" divided command="2">收藏</el-dropdown-item>
                   <el-dropdown-item icon="el-icon-share" command="3">分享</el-dropdown-item>
-                  <el-dropdown-item icon="el-icon-top-right" command="4" divided>导出</el-dropdown-item>
+                  <!--<el-dropdown-item icon="el-icon-top-right" command="4" divided>导出</el-dropdown-item>-->
                   <el-dropdown-item icon="el-icon-edit" command="5" :disabled="fileList[index].doclist[index1].power<3">重命名</el-dropdown-item>
                   <el-dropdown-item icon="el-icon-document" command="6">创建副本</el-dropdown-item>
                   <el-dropdown-item icon="el-icon-delete" divided style="color: red" command="7">删除</el-dropdown-item>
@@ -243,13 +243,11 @@
             havechoose:false,
 
             possible:[//可能搜索对象推荐
-                {userImg:'',userId:'123',userName:'you'},
-                {userImg:'',userId:'123',userName:'you'},
+
             ],
 
 
             fileList:[ // 最近浏览 一个月
-                {date:'8/7',doclist:[{docname:'you',docId:'fsd',owner:'dfsafd',doc:'fsdsdfsdf'},{docname:'you',docId:'fsd',owner:'dfsafd',doc:'fsdsdfsdf'}]}
              ],
 
 
@@ -359,7 +357,6 @@
         },
         // 预览文件
         showFile(index){
-          // TODO 预览文件
           localStorage.setItem('readnow',true);
           this.$router.push({
               path:'/test',

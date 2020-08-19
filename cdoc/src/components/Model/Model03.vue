@@ -1,49 +1,15 @@
 <template>
     <div>
-        <h1>
-主标题0
-</h1>
-
-<br/>
-
-<h2>
-第二级标题1
-</h2>
-
-<h3>
-第三级标题1
-</h3>
-
-<p>
-第一段内容
-</p>
-
-<br/>
-<h2>
-第二级标题2
-</h2>
-
-<h3>
-第三级标题2
-</h3>
-
-<p>
-第二段内容
-</p>
-
-<br/>
-<h2>
-第二级标题3
-</h2>
-
-<h3>
-第三级标题3
-</h3>
-
-<p>
-第二段内容
-</p>
-
+       <p style="text-align: center;"><span style="font-size: 18pt;"><strong><span style="font-family: 'comic sans ms', sans-serif;">TITLE</span></strong></span></p>
+<p style="text-align: left;">&nbsp;</p>
+<p style="text-align: left;"><strong><span style="font-family: 'comic sans ms', sans-serif;">PARAGRAPH1</span></strong></p>
+<p style="text-align: left;"><span style="font-family: 'comic sans ms', sans-serif;">This is the first paragraph.</span></p>
+<p style="text-align: left;">&nbsp;</p>
+<p style="text-align: left;"><strong><span style="font-family: 'comic sans ms', sans-serif;">PARAGRAPH2</span></strong></p>
+<p style="text-align: left;"><span style="font-family: 'comic sans ms', sans-serif;">This is the second paragraph.</span></p>
+<p style="text-align: left;">&nbsp;</p>
+<p style="text-align: left;"><strong><span style="font-family: 'comic sans ms', sans-serif;">PARAGRAPH3</span></strong></p>
+<p style="text-align: left;"><span style="font-family: 'comic sans ms', sans-serif;">This is the third paragraph.</span></p>
     </div>
 </template>
 

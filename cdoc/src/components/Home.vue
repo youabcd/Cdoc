@@ -143,18 +143,15 @@
             style="margin-top:16px;background-color: #f4f4f4;color: black" @click="showModel"
             >模板库</van-button
           >
-          <!--<van-button
-            type=""
-            block
-            style="margin-top:16px;background-color: #f4f4f4;color: black"
-            >导入</van-button
-          >-->
           <van-button
             type=""
             block
             style="margin-top:16px;background-color: #f4f4f4;color: black" @click="creatTeam"
             >创建团队</van-button
           >
+          <van-uploader :after-read="importDoc" accept=".doc">
+            <van-icon name="add-o" size="45px" style="margin-top:30px;"/>
+            </van-uploader>
           </van-col>
           <van-col span="1"></van-col>
 
@@ -416,9 +413,9 @@ export default {
           axios.post(baseUrl+'/createTeam', data)
           .then(function(response){//从后端取值
             if(response.data.success === true) {
-			
+
 				_this.teaminitial();
-				
+
 				setTimeout(()=>{
 				var newTeamId=response.data.result;
 				for(var i=0;i<_this.allTeams.length;i++){
@@ -427,7 +424,7 @@ export default {
             }
 			}
 			_this.onChange(index);
-				
+
 				},100)
             }
             else { // 登录失败 ，，，
@@ -436,7 +433,7 @@ export default {
           }
 		  )
 		console.log('confirmNewTeam!');
-        
+
     },
 
 
@@ -447,8 +444,23 @@ export default {
         //this.teamID=item.teamId;
     },
 
+// 导入文件
+    importDoc(file){
+      let _this = this;
+      let data = new FormData();
+      data.append('userId',this.myemail);
+      data.append('fileContent',file.content );
+      data.append('fileName',file.file.name);
+      axios.post(baseUrl+'/userUploadFile',data)
+      .then(function (response) {
+        Toast(response.data.message);
+        if(response.data.success)
+          location.reload()
+      })
+    },
 
-//新建
+
+//新建文件
     newDoc(index){
         this.showNew=true;
         this.popModel=false;
@@ -631,7 +643,7 @@ export default {
         }
     },
 
-//加载消息数量    
+//加载消息数量
 	messageinitial(){
 	console.log('submit!');
 			 let _this=this;
@@ -647,9 +659,9 @@ export default {
             })
 	},
 
-//加载团队  
+//加载团队
 	teaminitial(){
-	
+
 	let _this = this;
     let data = new FormData();
 	data.append('userId',this.myemail);
@@ -662,7 +674,7 @@ export default {
         }
 		console.log(response.data.length);
       })
-	
+
 	}
   },
   mounted() {
@@ -676,14 +688,14 @@ export default {
     .catch(function (err) {
     });
     // 加载队伍信息
-    
+
 
     this.nowActive=localStorage.getItem('NowActive');
 	console.log(this.NowActive);
     this.onChange(this.nowActive);
 	setTimeout(()=>{this.teaminitial();},200)
 	setTimeout(()=>{this.messageinitial();},100)
-	
+
   },
   created() {},
   computed: {

@@ -76,7 +76,7 @@
                   </el-tooltip>
 
                   <br/><br/>
-                    <p>个人信息</p>
+                    <div>个人信息</div>
               </van-col>
               <van-col span="2">
                 <el-divider direction="vertical"></el-divider>
@@ -260,6 +260,17 @@
             },
 
             submitNewHead(){//上传headList[0]
+              let _this = this;
+              let data = new FormData();
+              data.append('userId',this.myemail);
+              data.append('image',this.headList[0].content);
+              axios.post(baseUrl+'/uploadUserHeadImage',data)
+              .then(function (response) {
+                if(response.data.success){
+                  _this.popChangeHead = false;
+                  _this.loadData();
+                }
+              })
             },
 
 
@@ -369,21 +380,24 @@
             this.$nextTick(function () {
               _this.showPage = true;
             })
+          },
+          loadData(){
+            let _this=this;
+            let data = new FormData();
+            data.append('userId',this.myemail);
+            axios.post(baseUrl+'/showUserInfoPage',data)
+              .then(function (response) {
+                if(response.data.success === true){
+                  _this.username = response.data.userName;
+                  _this.userhead = response.data.userImage;
+                }
+              })
+              .catch(function (err) {
+              })
           }
         },
       mounted() {
-        let _this=this;
-        let data = new FormData();
-        data.append('userId',this.myemail);
-        axios.post(baseUrl+'/showUserInfoPage',data)
-        .then(function (response) {
-          if(response.data.success === true){
-            _this.username = response.data.userName;
-            _this.userhead = response.data.userImage;
-          }
-        })
-        .catch(function (err) {
-        })
+        this.loadData();
       },
     }
 </script>

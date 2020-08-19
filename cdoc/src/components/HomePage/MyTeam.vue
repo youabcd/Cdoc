@@ -9,14 +9,17 @@
               <el-popover
                 placement="right"
                 width="400"
-                trigger="click">
-                <el-table :data="TeamData">
+                trigger="hover">
+                <el-table :data="teamData">
                   <el-table-column width="200" prop="teamId" label="团队ID"></el-table-column>
-                  <el-table-column width="100" prope="teamLeaderName" label="创建者"></el-table-column>
-                  <el-table-column width="200" prop="teamLeaderId" label="创建者ID"></el-table-column>
+                  <el-table-column width="100" prop="teamName" label="队名"></el-table-column>
+                  <el-table-column width="100" prop="teamLeaderName" label="创建者"></el-table-column>
+                  <el-table-column width="200" prop="teamLeaderId" label="创建者邮箱"></el-table-column>
                   <el-table-column width="200" prop="teamCreateDate" label="团队创建时间"></el-table-column>
                 </el-table>
-                <el-button slot="reference">{{teamId}}</el-button>
+
+                <el-button slot="reference" style="margin-top:20px;">{{teamData[0].teamName}}</el-button>
+
               </el-popover>
             </el-col>
 
@@ -162,7 +165,7 @@
                             <el-dropdown-item icon="el-icon-edit-outline" command="1" :disabled="userFilePower=='read'&&tableData02[scope.$index].userId!=myemail">编辑文件</el-dropdown-item>
                             <el-dropdown-item icon="el-icon-star-off" divided command="2">收藏</el-dropdown-item>
                             <el-dropdown-item icon="el-icon-share" command="3">分享</el-dropdown-item>
-                            <el-dropdown-item icon="el-icon-top-right" command="4" divided>导出</el-dropdown-item>
+                            <!--<el-dropdown-item icon="el-icon-top-right" command="4" divided>导出</el-dropdown-item>-->
                             <el-dropdown-item icon="el-icon-edit" command="5" :disabled="userFilePower!='owner'&&userFilePower!='admin'&&tableData02[scope.$index].userId!=myemail">重命名</el-dropdown-item>
                             <el-dropdown-item icon="el-icon-delete" divided style="color: red" command="7" :disabled="(userTeamPower!='owner')&&(userFilePower!='admin')&&(tableData02[scope.$index].userId!=myemail)">删除</el-dropdown-item>
                           </van-col>
@@ -213,7 +216,7 @@
 
 <!--文档权限-->
                 <el-table-column label="设置文档权限">
-                  <template slot-scope="scope"  v-if="(userTeamPower=='admin'&&tableData[scope.$index].powerToTeam!='管理员'&&tableData[scope.$index].powerToTeam!='创建者')||(userTeamPower=='owner'&&tableData[scope.$index].powerToTeam!='创建者')">
+                  <template slot-scope="scope"  v-if="(userTeamPower=='admin'&&tableData[scope.$index].powerToTeam!='管理员'&&tableData[scope.$index].powerToTeam!='创建者')||(userTeamPower=='owner'&&tableData[scope.$index].powerToTeam=='成员')">
                     <el-popover
                       placement="right"
                       width="400"
@@ -416,17 +419,17 @@ export default {
       isIndeterminate: true,
 
 //团队信息
-      TeamData: {
+      teamData: [{
         teamId:'1234567',
+        teamName:'you',
         teamLeaderName: '张三',
-        teamLeaderId: '1',
+        teamLeaderId: '1322496098@qq.com',
         teamCreateDate:'2020-8-10'
-
-      },
+      }],
 
 
 //我的权限信息
-      userTeamPower: 'admin', // 我对团队的权限 none admin owner
+      userTeamPower: 'owner', // 我对团队的权限 none admin owner
       userFilePower: 'admin', // 我对文件的权限 read write admin
 
 
@@ -516,7 +519,7 @@ export default {
       .then(function (response) {
           _this.tableData = [];
           _this.tableData02 = [];
-          _this.teamData = response.data.result.teamData; // 成员信息
+          _this.teamData[0] = response.data.result.teamData; // 成员信息
           for(let i=0; i<response.data.result.teamMember.length; i++) {
             _this.tableData.push(response.data.result.teamMember[i]); // 成员信息
           }

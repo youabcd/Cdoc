@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="editor1">
     <van-row>
     <van-col span="2">
         <div v-if="readnow==='false'" style="margin-top:20px;">
@@ -11,12 +11,16 @@
         <div v-if="readnow==='false'" style="margin-top:20px;">
           <van-button block type="info" :disabled="editingIndex==-1 || list[editingIndex].userId!=myemail" @click="cancelChange">取消</van-button>
         </div>
+        <div style="margin-top:20px;">
+          <van-button block type="success" @click="btnWord">导出</van-button>
+        </div>
     </van-col>
 
     <van-col span="1"></van-col>
 
     <van-col span="21">
-    <textarea :id='id' :value='value'></textarea>
+    <textarea :id='id' :value='value' class="download"></textarea>
+
     </van-col>
 
     </van-row>
@@ -41,6 +45,8 @@
   import 'tinymce/plugins/textcolor'
   import 'tinymce/plugins/colorpicker'
   import 'tinymce/icons/default/icons.min.js'
+  import saveAs from 'file-saver'
+  import '../../static/js/jquery.wordexport'
   const INIT = 0
   const CHANGED = 2
   // var EDITOR = null
@@ -97,11 +103,36 @@
         // 定时函数
         timer: null,
         timer1: null,
+        docInfo:{docId:'1',docName:'1',authorName:'x',authorId:'x',cooperatorId:['a','b','c','d','e']},
 
         readnow: localStorage.getItem('readnow'),
+
+        textValue: '',
       }
     },
     methods: {
+
+      //保存至本地
+      btnWord(){
+          console.log(this.value);
+          let _this = this;
+          this.$router.push({
+            path:'/Download',
+            query:{value:_this.textValue,docName:_this.docInfo.docName
+            },
+          });
+
+/*
+          const foo = this.value;
+          const blob = new Blob([JSON.stringify(foo)], {type: "text/plain"});
+          const fileName = `${new Date().valueOf()}.doc`;
+          const link = document.createElement('a');
+          link.href = window.URL.createObjectURL(blob);
+          link.download = fileName;
+          link.click();
+          window.URL.revokeObjectURL(link.href);*/
+      },
+
       // 向后端传输数据
       sendData(){
         let _this=this;
@@ -125,8 +156,9 @@
             console.log(response.data)
             if(response.data.success) {
               _this.value = response.data.result.value;
+              _this.textValue = response.data.result.value;
               // 同步内容
-              tinymce.activeEditor.setContent(_this.value);
+              tinymce.activeEditor.setContent(_this.textValue);
             }
           })
       },
@@ -241,11 +273,17 @@
     },
 
     mounted() {
-
+      let _this = this;
+      let data = new FormData();
+      data.append('docId',this.docid);
+          axios.post(baseUrl+'/getdocInfo',data)
+          .then(function (response) {
+              _this.docInfo = response.data.result;
+          });
       this.loadData();
       this.checkUsers(1000);
       this.checkData(3000);
-      const _this = this;
+      //const _this = this;
       const setting =
         {
           selector: '#' + _this.id,
@@ -299,8 +337,7 @@
           }
         }
       Object.assign(setting, _this.setting)
-      tinymce.init(setting)
-
+      tinymce.init(setting);
 
       setTimeout(()=>{
         tinymce.activeEditor.getBody().setAttribute('contenteditable',false);

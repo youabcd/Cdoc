@@ -80,7 +80,7 @@
                     <el-dropdown-item icon="el-icon-edit-outline" command="1" :disabled="item.power<2">编辑文件</el-dropdown-item>
                     <el-dropdown-item icon="el-icon-star-off" divided command="2">取消收藏</el-dropdown-item>
                     <el-dropdown-item icon="el-icon-share" command="3">分享</el-dropdown-item>
-                    <el-dropdown-item icon="el-icon-top-right" command="4" divided>导出</el-dropdown-item>
+                    <!--<el-dropdown-item icon="el-icon-top-right" command="4" divided>导出</el-dropdown-item>-->
                     <el-dropdown-item icon="el-icon-edit" command="5" :disabled="item.power<3">重命名</el-dropdown-item>
                     <el-dropdown-item icon="el-icon-document" command="6">创建副本</el-dropdown-item>
                     <el-dropdown-item icon="el-icon-delete" divided style="color: red" command="7">删除</el-dropdown-item>
@@ -130,7 +130,7 @@
                   <el-dropdown-item icon="el-icon-edit-outline" command="1" :disabled="item.power<2">编辑文件</el-dropdown-item>
                   <el-dropdown-item icon="el-icon-star-off" divided command="2">取消收藏</el-dropdown-item>
                   <el-dropdown-item icon="el-icon-share" command="3">分享</el-dropdown-item>
-                  <el-dropdown-item icon="el-icon-top-right" command="4" divided>导出</el-dropdown-item>
+                  <!--<el-dropdown-item icon="el-icon-top-right" command="4" divided>导出</el-dropdown-item>-->
                   <el-dropdown-item icon="el-icon-edit" command="5" :disabled="item.power<3">重命名</el-dropdown-item>
                   <el-dropdown-item icon="el-icon-document" command="6">创建副本</el-dropdown-item>
                   <el-dropdown-item icon="el-icon-delete" divided style="color: red" command="7">删除</el-dropdown-item>

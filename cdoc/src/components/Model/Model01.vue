@@ -1,48 +1,15 @@
 <template>
     <div>
-        <h1>
-主标题
-</h1>
-
-<br/>
-
-<h2>
-第二级标题1
-</h2>
-
-<h3>
-第三级标题1
-</h3>
-
-<p>
-第一段内容
-</p>
-
-<br/>
-<h2>
-第二级标题2
-</h2>
-
-<h3>
-第三级标题2
-</h3>
-
-<p>
-第二段内容
-</p>
-
-<br/>
-<h2>
-第二级标题3
-</h2>
-
-<h3>
-第三级标题3
-</h3>
-
-<p>
-第二段内容
-</p>
+<p style="text-align: center;"><span style="font-size: 36pt;"><strong>标题</strong></span></p>
+<p style="text-align: center;"><span style="font-size: 18pt;"><strong>副标题</strong></span></p>
+<p><span style="font-size: 18pt;">第一段：</span></p>
+<p>&nbsp;&nbsp;<span style="font-size: 14pt;">内容</span></p>
+<p>&nbsp;</p>
+<p><span style="font-size: 18pt;">第二段：</span></p>
+<p>&nbsp;&nbsp;<span style="font-size: 14pt;">内容</span></p>
+<p>&nbsp;</p>
+<p><span style="font-size: 18pt;">第三段：</span></p>
+<p>&nbsp;&nbsp;<span style="font-size: 14pt;">内容</span></p>
 
     </div>
 </template>

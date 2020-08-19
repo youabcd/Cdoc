@@ -15,6 +15,7 @@ import Model03 from '@/components/Model/Model03'
 import Model04 from '@/components/Model/Model04'
 import Model05 from '@/components/Model/Model05'
 import OthersInfo from '@/components/OthersInfo'
+import Download from '@/components/Download'
 
 Vue.use(Router)
 
@@ -94,6 +95,11 @@ export default new Router({
       path: '/OthersInfo',
       name: 'OthersInfo',
       component: OthersInfo
+    },
+    {
+      path: '/Download',
+      name: 'Download',
+      component: Download
     },
   ]
 })
